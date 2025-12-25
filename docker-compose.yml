@@ -1,7 +1,9 @@
 services:
   # 1. Spring Boot Application
   backend:
-    build: .
+    build:
+      context: .
+      target: build  # <--- TRICK 1: Stop at the "Maven" stage, don't build the final JAR
     ports:
       - "8080:8080"
     environment:
@@ -10,6 +12,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=SecureP@ssword123
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+    volumes:
+      - .:/app           # <--- TRICK 2: Map your live folder into the container
+      - /app/target      # <--- TRICK 3: Don't overwrite the container's compiled files with your local empty ones
+    command: mvn spring-boot:run  # <--- TRICK 4: Run via Maven, not java -jar
     depends_on:
       - db
       - redis

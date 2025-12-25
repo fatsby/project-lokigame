@@ -1,10 +1,11 @@
-# Stage 1: Build the JAR
+# Stage 1: Build / Dev
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY pom.xml .
+# Pre-download dependencies so restarts are fast
+RUN mvn dependency:go-offline
 COPY src ./src
-# Build the application (skipping tests for faster builds during dev)
-RUN mvn clean package -DskipTests
+# (We remove the 'RUN mvn package' here because 'spring-boot:run' handles it dynamically)
 
 # Stage 2: Create the Runtime Image
 FROM eclipse-temurin:21-jre-alpine
