@@ -1,0 +1,50 @@
+services:
+  # 1. Spring Boot Application
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/lokigame
+      - SPRING_DATASOURCE_USERNAME=loki
+      - SPRING_DATASOURCE_PASSWORD=SecureP@ssword123
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - gacha-net
+
+  # 2. PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=lokigame
+      - POSTGRES_USER=loki
+      - POSTGRES_PASSWORD=SecureP@ssword123
+    ports:
+      - "5432:5432" # Exposed for local tools (DBeaver/pgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gacha-net
+
+  # 3. Redis Cache
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - gacha-net
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  gacha-net:
