@@ -1,7 +1,7 @@
 package com.theliems.lokigame.model.entity.player;
 
 public enum Role {
-    USER,
-    MODERATOR,
-    ADMIN
+    ROLE_USER,
+    ROLE_MODERATOR,
+    ROLE_ADMIN
 }

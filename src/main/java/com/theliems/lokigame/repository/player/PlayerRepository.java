@@ -1,4 +1,4 @@
-package com.theliems.lokigame.repository;
+package com.theliems.lokigame.repository.player;
 
 import com.theliems.lokigame.model.entity.player.Player;
 import org.springframework.data.jpa.repository.JpaRepository;

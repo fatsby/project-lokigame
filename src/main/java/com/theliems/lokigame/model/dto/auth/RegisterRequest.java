@@ -10,17 +10,15 @@ import java.util.Set;
 @Data
 public class RegisterRequest {
     @NotBlank
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters.")
     private String username;
 
     @NotBlank
-    @Size(max = 50)
+    @Size(max = 50, message = "Email cannot exceed 50 characters.")
     @Email
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 40)
+    @Size(min = 6, max = 40, message = "Password cannot exceed 40 characters.")
     private String password;
-
-    private Set<String> role;
 }

@@ -2,10 +2,7 @@ package com.theliems.lokigame.model.entity.player;
 
 import com.theliems.lokigame.model.entity.system.AuditMetaData;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -17,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
+@Builder
 @Table(name = "players")
 public class Player {
     @Id
@@ -37,8 +35,10 @@ public class Player {
     Role role;
 
     @Column(nullable = false)
+    @Builder.Default
     Long currency = 0L;
 
     @Embedded
+    @Builder.Default
     AuditMetaData auditMetaData = new AuditMetaData();
 }

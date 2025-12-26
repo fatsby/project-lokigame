@@ -2,7 +2,7 @@ package com.theliems.lokigame.service.auth;
 
 import com.theliems.lokigame.infrastructure.security.JwtProperties;
 import com.theliems.lokigame.model.entity.system.RefreshToken;
-import com.theliems.lokigame.repository.PlayerRepository;
+import com.theliems.lokigame.repository.player.PlayerRepository;
 import com.theliems.lokigame.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
