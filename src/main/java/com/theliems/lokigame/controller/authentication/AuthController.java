@@ -37,9 +37,4 @@ public class AuthController {
         TokenPair tokenPair = authService.refreshToken(request);
         return ResponseEntity.ok(tokenPair);
     }
-
-    @PostMapping("/signout")
-    public ResponseEntity<?> logoutUser() {
-
-    }
 }

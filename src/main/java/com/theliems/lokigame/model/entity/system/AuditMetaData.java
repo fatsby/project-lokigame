@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 @Setter
 public class AuditMetaData {
 
-    private boolean isActive = true;
+    private Boolean active = true;
 
-    private boolean isDelete = false;
+    private Boolean deleted = false;
 
     @CreatedDate
     private LocalDateTime createdAt;
