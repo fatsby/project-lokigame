@@ -44,10 +44,11 @@ Stored in PostgreSQL `heroes` table.
 * **Class:** Enum/String (e.g., `MAGE`, `PALADIN`)
 * **Rarity:** 1-7 Stars (Determines Stat Multipliers/Floors)
 * **Stats (JSONB):** * `health`, `armour`, `abilityPower`, `expPerSecond`
-    * *Note:* Stats are rolled based on Class + Rarity.
+    * *Note:* Stats are rolled based on Class + Rarity + World.
 * **Visuals (JSONB):**
     * `hair_id`, `face_id`, `top_id`, `bottom_id`
     * *Note:* Visuals are strictly cosmetic but persisted to maintain identity.
+* **World Orgin**: World ID
 
 #### B. Generation Logic (Algorithm)
 When a player summons a hero:
@@ -60,6 +61,44 @@ When a player summons a hero:
     * `FinalStat = BaseStat * RarityMultiplier` (or Rarity adds a flat bonus to the Min).
 5.  **Roll Visuals:** * Select random `visual_id` from available pools for that Class/Gender.
     * Ensure valid combinations (e.g., Mage robes don't mix with Plate legs if restricted).
+6. **Roll World:** Select a random id from `worlds.json`, each `world` has `stat_multiplier` which will increase the hero base attributes. The rarer the world, the higher the stats.
+
+### 4.3. Inventory System
+**Objective:** Manage ownership of Items (Visuals, Weapons) and validation for equipping them.
+
+#### A. Architecture: Split-Data Model
+*   **Static Definition (JSON):** Defines *what* an item is (Name, Base Stats, Class Restrictions).
+    *   *Items:* `items.json` (Weapons, Armor, Accessories).
+    *   *Visuals:* `visuals.json` (Body Features like Hair, Faces).
+*   **Dynamic Ownership (PostgreSQL):** Defines *who* owns an instance of an item.
+    *   Stored in `inventory_items` table.
+
+#### B. Inventory Item Entity
+*   **ID:** UUID (Unique Instance ID).
+*   **Player ID:** Owner UUID.
+*   **Item ID:** String (Reference to JSON ID, e.g., `robe_mage_rare_01`).
+*   **Item Type:** Enum (`VISUAL`, `WEAPON`).
+*   **Item Tier:** Enum (`NORMAL`, `RARE`, `EPIC`, `LEGENDARY`, `GODSENT`).
+*   **Metadata (JSONB):** Stores instance-specific data (e.g., specific rolled stats for weapons, or `null` for static visuals).
+
+#### C. Equipment Logic
+1.  **Request:** Player requests to equip Item X (Instance ID) to Hero Y.
+2.  **Validation:**
+    *   **Ownership:** Does Player own Item X?
+    *   **Availability:** Is Item X already equipped on another Hero? (Items are unique instances; you need 2 copies to equip 2 heroes).
+    *   **Compatibility:** Does Item X's static definition allow Hero Y's Class?
+3.  **Action:** Update Hero Y's `visuals` or `equipment` field.
+
+#### D. Item Tiers
+Items follow a 5-tier rarity system that determines their power ceiling and generation logic:
+*   **Multipliers:** `NORMAL` (1.0x), `RARE` (1.2x), `EPIC` (1.5x), `LEGENDARY` (2.0x), `GODSENT` (5.0x).
+*   **Godsent Logic:** These items are uniquely powerful and have **hard-coded** stats defined in metadata, bypassing standard RNG generation.
+*   **Crafting Integration:** Future crafting systems will use player skill levels to influence the probability of hitting higher tiers.
+
+### 4.4. RNG Architecture
+*   **Unified Service:** `WeightedRngService` centralizes all weighted probability logic (e.g., picking a World, rolling Item Tiers).
+*   **Strategy:** Uses a generic `WeightedSelector<T>` implementation (TreeMap-based cumulative weighting) to ensure O(log N) performance and testability.
+*   **Usage:** Registries (like `WorldRegistry`) delegate to this service rather than implementing their own random logic.
 
 ---
 
@@ -93,16 +132,58 @@ Defines the boundaries for RNG generation.
 ```
 
 ### 5.2 visuals.json (Static Asset Registry)
+Defines cosmetic body features.
 ```json
 {
   "hair": ["hair_short_01", "hair_long_02", "hair_punk_03"],
-  "faces": ["face_angry", "face_calm", "face_old"],
-  "tops": [
-    { "id": "robe_mage_basic", "class_restriction": ["mage"] },
-    { "id": "plate_chest_iron", "class_restriction": ["paladin"] }
-  ],
-  "bottoms": [...]
+  "faces": ["face_angry", "face_calm", "face_old"]
 }
+```
+
+### 5.3 worlds.json
+```json
+[
+  {
+    "id": "midgard",
+    "name": "Midgard",
+    "description": "The realm of humans. Standard power levels.",
+    "rarity_weight": 100,
+    "stat_multiplier": 1.0,
+    "dungeon_difficulty_mod": 1.0
+  },
+  {
+    "id": "niflheim",
+    "name": "Niflheim",
+    "description": "The frozen realm. Heroes forged here are hardened.",
+    "rarity_weight": 20,
+    "stat_multiplier": 1.2,
+    "dungeon_difficulty_mod": 1.5
+  },
+  {
+    "id": "asgard",
+    "name": "Asgard",
+    "description": "The realm of gods. Immense power flows here.",
+    "rarity_weight": 5,
+    "stat_multiplier": 1.5,
+    "dungeon_difficulty_mod": 3.0
+  }
+]
+```
+
+### 5.4 items.json (Equipment Definitions)
+Defines equippable items with stat ranges.
+```json
+[
+  {
+    "id": "robe_mage_basic",
+    "name": "Apprentice Robe",
+    "type": "ARMOR",
+    "slot": "BODY",
+    "classRestriction": ["mage"],
+    "isDefault": true,
+    "baseStats": { "armour": {"min": 1.0, "max": 2.0} }
+  }
+]
 ```
 
 ## 6. Infrastructure (Docker)

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "mage",
+    "name": "Mage",
+    "baseStats": {
+      "health": { "min": 50, "max": 80 },
+      "abilityPower": { "min": 10, "max": 25 },
+      "armour": { "min": 0, "max": 5 },
+      "expPerSecond": { "min": 0.5, "max": 1.5 }
+    },
+    "allowedWeaponTypes": ["STAFF", "WAND"]
+  },
+  {
+    "id": "paladin",
+    "name": "Paladin",
+    "baseStats": {
+      "health": { "min": 90, "max": 120 },
+      "abilityPower": { "min": 0, "max": 10 },
+      "armour": { "min": 10, "max": 20 },
+      "expPerSecond": { "min": 0.5, "max": 1.5 }
+    },
+    "allowedWeaponTypes": ["SWORD", "SHIELD"]
+  }
+]

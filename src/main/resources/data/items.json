@@ -1,0 +1,38 @@
+[
+  {
+    "id": "robe_mage_basic",
+    "name": "Apprentice Robe",
+    "type": "ARMOR",
+    "slot": "BODY",
+    "classRestriction": ["mage"],
+    "isDefault": true,
+    "baseStats": { "armour": {"min": 1.0, "max": 2.0} }
+  },
+  {
+    "id": "plate_chest_iron",
+    "name": "Iron Chestplate",
+    "type": "ARMOR",
+    "slot": "BODY",
+    "classRestriction": ["paladin"],
+    "isDefault": true,
+    "baseStats": { "armour": {"min": 5.0, "max": 8.0} }
+  },
+  {
+    "id": "robe_bottom_basic",
+    "name": "Apprentice Leggings",
+    "type": "ARMOR",
+    "slot": "LEGS",
+    "classRestriction": ["mage"],
+    "isDefault": true,
+    "baseStats": { "armour": {"min": 1.0, "max": 1.0} }
+  },
+  {
+    "id": "plate_legs_iron",
+    "name": "Iron Greaves",
+    "type": "ARMOR",
+    "slot": "LEGS",
+    "classRestriction": ["paladin"],
+    "isDefault": true,
+    "baseStats": { "armour": {"min": 3.0, "max": 5.0} }
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "earth",
+    "name": "Earth",
+    "description": "The realm of humans. Standard power levels.",
+    "rarityWeight": 100,
+    "statMultiplier": 1.0,
+    "dungeonDifficultyMod": 1.0
+  },
+  {
+    "id": "niflheim",
+    "name": "Niflheim",
+    "description": "The frozen realm. Heroes forged here are hardened.",
+    "rarityWeight": 20,
+    "statMultiplier": 1.2,
+    "dungeonDifficultyMod": 1.5
+  },
+  {
+    "id": "asgard",
+    "name": "Asgard",
+    "description": "The realm of gods. Immense power flows here.",
+    "rarityWeight": 5,
+    "statMultiplier": 1.5,
+    "dungeonDifficultyMod": 3.0
+  }
+]
