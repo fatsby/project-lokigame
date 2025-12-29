@@ -10,5 +10,6 @@ public class ClassDefinition {
     private String id;
     private String name;
     private Map<String, StatRange> baseStats;
+    private Map<String, StatRange> statGrowth;
     private List<String> allowedWeaponTypes;
 }

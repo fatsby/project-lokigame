@@ -2,6 +2,7 @@ package com.theliems.lokigame.model.entity.inventory;
 
 import com.theliems.lokigame.model.entity.hero.StatRange;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
+import com.theliems.lokigame.model.enums.ItemType;
 import lombok.Data;
 
 import java.util.List;

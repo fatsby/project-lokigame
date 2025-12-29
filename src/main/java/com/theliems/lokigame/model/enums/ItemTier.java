@@ -1,4 +1,4 @@
-package com.theliems.lokigame.model.entity.inventory;
+package com.theliems.lokigame.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

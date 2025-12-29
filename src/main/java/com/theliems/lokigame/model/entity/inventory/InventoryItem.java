@@ -1,6 +1,8 @@
 package com.theliems.lokigame.model.entity.inventory;
 
 import com.theliems.lokigame.model.entity.system.AuditMetaData;
+import com.theliems.lokigame.model.enums.ItemTier;
+import com.theliems.lokigame.model.enums.ItemType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;

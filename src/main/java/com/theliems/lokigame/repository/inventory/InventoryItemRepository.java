@@ -1,7 +1,7 @@
 package com.theliems.lokigame.repository.inventory;
 
 import com.theliems.lokigame.model.entity.inventory.InventoryItem;
-import com.theliems.lokigame.model.entity.inventory.ItemType;
+import com.theliems.lokigame.model.enums.ItemType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

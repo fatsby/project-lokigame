@@ -5,8 +5,8 @@ import com.theliems.lokigame.infrastructure.exception.errorCategories.InventoryE
 import com.theliems.lokigame.model.entity.hero.StatRange;
 import com.theliems.lokigame.model.entity.inventory.InventoryItem;
 import com.theliems.lokigame.model.entity.inventory.ItemDefinition;
-import com.theliems.lokigame.model.entity.inventory.ItemTier;
-import com.theliems.lokigame.model.entity.inventory.ItemType;
+import com.theliems.lokigame.model.enums.ItemTier;
+import com.theliems.lokigame.model.enums.ItemType;
 import com.theliems.lokigame.repository.inventory.InventoryItemRepository;
 import com.theliems.lokigame.service.gameData.registry.ItemRegistry;
 import lombok.RequiredArgsConstructor;

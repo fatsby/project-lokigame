@@ -2,6 +2,7 @@ package com.theliems.lokigame.model.entity.hero;
 
 import com.theliems.lokigame.model.entity.system.AuditMetaData;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
+import com.theliems.lokigame.model.enums.HeroGender;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,16 +32,44 @@ public class Hero {
     @Column(name = "hero_class", nullable = false)
     private String heroClass; // Matches "id" in classes.json
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private HeroGender gender;
+
     @Column(nullable = false)
     private int rarity; // 1-7 Stars
 
-    @Column(name = "origin_worlyd_id", nullable = false)
+    @Column(name = "origin_world_id", nullable = false)
     private String originWorldId;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer level = 1;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Long experience = 0L;
+
+    /**
+     * Multiplier for idle XP gain.
+     * Generated randomly, each Hero will have unique willpower amount.
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Double willPower = 1.0;
+
+    /**
+     * Exp per second for calculating XP gain with idling
+     * Base value, each Hero share the same expPerSecond
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Double expPerSecond = 0.001;
 
     /**
      * Stats rolled based on Class + Rarity + World.
      * Stored as JSONB in Postgres for flexibility.
-     * Expected keys: health, armour, abilityPower, expPerSecond
+     * Expected keys: health, armour, abilityPower
      */
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")

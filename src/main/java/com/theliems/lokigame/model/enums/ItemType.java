@@ -1,4 +1,4 @@
-package com.theliems.lokigame.model.entity.inventory;
+package com.theliems.lokigame.model.enums;
 
 public enum ItemType {
     VISUAL,
