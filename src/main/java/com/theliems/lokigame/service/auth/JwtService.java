@@ -62,7 +62,7 @@ public class JwtService {
 
     public boolean isRefreshToken(String token) {
         Claims claims = extractAllClaims(token);
-        if(claims == null) {
+        if (claims == null) {
             return false;
         }
         return "refresh".equals(claims.get("tokenType"));
@@ -78,7 +78,8 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException(e);
+            log.error("Invalid JWT token: {}", e.getMessage());
+            return null;
         }
 
         return claims;
@@ -87,7 +88,7 @@ public class JwtService {
     public String extractUsernameFromToken(String token) {
         Claims claims = extractAllClaims(token);
 
-        if(claims != null) {
+        if (claims != null) {
             return claims.getSubject();
         }
         return null;
