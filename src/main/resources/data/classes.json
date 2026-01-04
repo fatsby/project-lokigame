@@ -3,30 +3,44 @@
     "id": "mage",
     "name": "Mage",
     "baseStats": {
-      "health": { "min": 50, "max": 80 },
-      "abilityPower": { "min": 10, "max": 25 },
-      "armour": { "min": 0, "max": 5 }
-    },
-    "statGrowth": {
-      "health": { "min": 5, "max": 8 },
-      "abilityPower": { "min": 2, "max": 4 },
-      "armour": { "min": 0, "max": 1 }
-    },
-    "allowedWeaponTypes": ["STAFF", "WAND"]
+      "health": {
+        "min": 50,
+        "max": 80
+      },
+      "abilityPower": {
+        "min": 10,
+        "max": 25
+      },
+      "attackDamage": {
+        "min": 0,
+        "max": 10
+      },
+      "armour": {
+        "min": 0,
+        "max": 5
+      }
+    }
   },
   {
     "id": "paladin",
     "name": "Paladin",
     "baseStats": {
-      "health": { "min": 90, "max": 120 },
-      "abilityPower": { "min": 0, "max": 10 },
-      "armour": { "min": 10, "max": 20 }
-    },
-    "statGrowth": {
-      "health": { "min": 10, "max": 15 },
-      "abilityPower": { "min": 0, "max": 1 },
-      "armour": { "min": 2, "max": 4 }
-    },
-    "allowedWeaponTypes": ["SWORD", "SHIELD"]
+      "health": {
+        "min": 90,
+        "max": 120
+      },
+      "abilityPower": {
+        "min": 0,
+        "max": 10
+      },
+      "attackDamage": {
+        "min": 10,
+        "max": 25
+      },
+      "armour": {
+        "min": 10,
+        "max": 20
+      }
+    }
   }
 ]

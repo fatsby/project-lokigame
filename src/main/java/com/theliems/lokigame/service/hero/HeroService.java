@@ -6,12 +6,18 @@ import com.theliems.lokigame.infrastructure.rng.WeightedSelector;
 import com.theliems.lokigame.model.entity.hero.ClassDefinition;
 import com.theliems.lokigame.model.entity.hero.Hero;
 import com.theliems.lokigame.model.entity.hero.StatRange;
+import com.theliems.lokigame.model.entity.inventory.InventoryItem;
+import com.theliems.lokigame.model.entity.inventory.ItemDefinition;
 import com.theliems.lokigame.model.entity.world.WorldDefinition;
+import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.HeroGender;
 import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.service.gameData.registry.HeroClassRegistry;
+import com.theliems.lokigame.service.gameData.registry.ItemRegistry;
+import com.theliems.lokigame.service.gameData.registry.NamesRegistry;
 import com.theliems.lokigame.service.gameData.registry.VisualsRegistry;
 import com.theliems.lokigame.service.gameData.registry.WorldRegistry;
+import com.theliems.lokigame.service.inventory.InventoryItemService;
 import com.theliems.lokigame.service.rng.WeightedRngService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +39,9 @@ public class HeroService {
     HeroClassRegistry heroClassRegistry;
     WorldRegistry worldRegistry;
     VisualsRegistry visualsRegistry;
+    NamesRegistry namesRegistry;
+    ItemRegistry itemRegistry;
+    InventoryItemService inventoryItemService;
     WeightedRngService rngService;
     ExceptionFactory exceptionFactory;
 
@@ -44,8 +53,7 @@ public class HeroService {
             4, 4.0,
             5, 2.0,
             6, 1.5,
-            7, 0.5
-    );
+            7, 0.5);
 
     // Stat Multipliers by Rarity
     private static final Map<Integer, Double> RARITY_STAT_MULTIPLIERS = Map.of(
@@ -55,8 +63,7 @@ public class HeroService {
             4, 1.45,
             5, 1.8,
             6, 2.5,
-            7, 4.0
-    );
+            7, 4.0);
 
     @Transactional
     public Hero summonHero(UUID ownerId) {
@@ -75,21 +82,30 @@ public class HeroService {
         // 4. Roll Gender (50/50)
         HeroGender gender = ThreadLocalRandom.current().nextBoolean() ? HeroGender.MALE : HeroGender.FEMALE;
 
-        // 5. Calculate Stats
+        // 5. Generate Name (based on gender)
+        String firstName = namesRegistry.getRandomFirstName(gender);
+        String lastName = namesRegistry.getRandomLastName();
+
+        // 6. Calculate Stats
         Map<String, Double> stats = calculateStats(heroClass, world, rarity);
 
-        // 6. Generate Visuals
+        // 7. Generate Visuals
         Map<String, String> visuals = generateVisuals();
 
-        // 7. Calculate Growth Attributes
+        // 8. Calculate Growth Attributes
         double willPower = ThreadLocalRandom.current().nextDouble(1.0, 2.0); // Random willPower for each hero
         double expPerSec = 0.001; // base value, each hero shares the same expPerSec
 
-        // 8. Build Hero
+        // 9. Create Default Equipment
+        Map<EquipmentSlot, UUID> equipment = createDefaultEquipment(ownerId, heroClass.getId());
+
+        // 10. Build Hero
         Hero hero = Hero.builder()
                 .ownerId(ownerId)
                 .heroClass(heroClass.getId())
                 .gender(gender)
+                .firstName(firstName)
+                .lastName(lastName)
                 .rarity(rarity)
                 .originWorldId(world.getId())
                 .level(1)
@@ -98,10 +114,31 @@ public class HeroService {
                 .expPerSecond(expPerSec)
                 .stats(stats)
                 .visuals(visuals)
-                .equipment(new HashMap<>()) // Empty equipment initially
+                .equipment(equipment)
                 .build();
 
         return heroRepository.save(hero);
+    }
+
+    /**
+     * Creates default inventory items for each equipment slot and returns a map of
+     * slot -> item UUID.
+     */
+    private Map<EquipmentSlot, UUID> createDefaultEquipment(UUID ownerId, String classId) {
+        Map<EquipmentSlot, UUID> equipment = new HashMap<>();
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemDefinition defaultItemDef = itemRegistry.getBaseItem(slot, classId);
+            if (defaultItemDef != null) {
+                InventoryItem createdItem = inventoryItemService.createDefaultItem(
+                        ownerId,
+                        defaultItemDef.getId(),
+                        defaultItemDef.getType());
+                equipment.put(slot, createdItem.getId());
+            }
+        }
+
+        return equipment;
     }
 
     private int rollRarity() {

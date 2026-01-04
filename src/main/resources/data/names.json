@@ -1,0 +1,55 @@
+{
+    "firstNames": {
+        "MALE": [
+            "Aldric",
+            "Cedric",
+            "Gareth",
+            "Roland",
+            "Theron",
+            "Magnus",
+            "Viktor",
+            "Edmund",
+            "Cassius",
+            "Darius",
+            "Lucian",
+            "Orion",
+            "Felix",
+            "Silas",
+            "Bastian"
+        ],
+        "FEMALE": [
+            "Aria",
+            "Luna",
+            "Seraphina",
+            "Elara",
+            "Isolde",
+            "Vivienne",
+            "Celeste",
+            "Lyra",
+            "Aurora",
+            "Evangeline",
+            "Rosalind",
+            "Ophelia",
+            "Cassandra",
+            "Freya",
+            "Guinevere"
+        ]
+    },
+    "lastNames": [
+        "Stormwind",
+        "Ironforge",
+        "Shadowbane",
+        "Brightblade",
+        "Nightfall",
+        "Dawnstar",
+        "Frostweaver",
+        "Flameheart",
+        "Stoneguard",
+        "Swiftarrow",
+        "Darkwood",
+        "Silvermoon",
+        "Goldcrest",
+        "Ravenshield",
+        "Thunderstrike"
+    ]
+}

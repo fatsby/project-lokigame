@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+/**
+ * This class is useless rn i think
+ */
 public class GameDataService {
     HeroClassRegistry heroClassesRegistry;
     VisualsRegistry visualsRegistry;
@@ -46,6 +49,7 @@ public class GameDataService {
 
     /**
      * Gets the base default top ID for the specific class.
+     * 
      * @param classId The hero class ID (e.g., "mage")
      */
     public String getBaseTop(String classId) {
@@ -55,6 +59,7 @@ public class GameDataService {
 
     /**
      * Gets the base default bottom ID for the specific class.
+     * 
      * @param classId The hero class ID (e.g., "mage")
      */
     public String getBaseBottom(String classId) {

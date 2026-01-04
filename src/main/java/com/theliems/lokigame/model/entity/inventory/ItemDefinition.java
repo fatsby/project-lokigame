@@ -1,5 +1,6 @@
 package com.theliems.lokigame.model.entity.inventory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.theliems.lokigame.model.entity.hero.StatRange;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.ItemType;
@@ -15,6 +16,9 @@ public class ItemDefinition {
     private ItemType type;
     private EquipmentSlot slot;
     private List<String> classRestriction;
-    private boolean isDefault;
+
+    @JsonProperty("isDefault")
+    private boolean defaultItem;
+
     private Map<String, StatRange> baseStats;
 }

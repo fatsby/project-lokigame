@@ -1,13 +1,15 @@
 package com.theliems.lokigame.service.gameData.registry;
 
 import com.theliems.lokigame.model.entity.visuals.VisualsContainer;
+import com.theliems.lokigame.service.rng.WeightedRngService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
 @Component
+@RequiredArgsConstructor
 public class VisualsRegistry implements DataRegistry {
+
+    private final WeightedRngService rngService;
 
     private VisualsContainer container;
 
@@ -20,21 +22,17 @@ public class VisualsRegistry implements DataRegistry {
         this.container = null;
     }
 
-    // --- Internal Logic Methods ---
+    // --- Random Selection Methods (delegated to centralized RNG) ---
 
     public String getRandomHair() {
-        if (container == null || container.getHair().isEmpty()) return "default_hair";
-        return getRandomFromList(container.getHair());
+        if (container == null || container.getHair().isEmpty())
+            return "default_hair";
+        return rngService.selectUniform(container.getHair());
     }
 
     public String getRandomFace() {
-        if (container == null || container.getFaces().isEmpty()) return "default_face";
-        return getRandomFromList(container.getFaces());
-    }
-
-    // --- Helper Logic ---
-
-    private String getRandomFromList(List<String> list) {
-        return list.get(ThreadLocalRandom.current().nextInt(list.size()));
+        if (container == null || container.getFaces().isEmpty())
+            return "default_face";
+        return rngService.selectUniform(container.getFaces());
     }
 }

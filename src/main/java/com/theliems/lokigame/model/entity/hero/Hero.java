@@ -36,6 +36,12 @@ public class Hero {
     @Column(name = "gender", nullable = false)
     private HeroGender gender;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
     @Column(nullable = false)
     private int rarity; // 1-7 Stars
 
@@ -87,7 +93,8 @@ public class Hero {
     /**
      * Active Equipment Loadout.
      * Maps Slot -> InventoryItem UUID (Instance ID).
-     * Allows fetching the specific item instance (with its specific stats/tier) for stat calculation.
+     * Allows fetching the specific item instance (with its specific stats/tier) for
+     * stat calculation.
      */
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
