@@ -1,5 +1,6 @@
 package com.theliems.lokigame.service.hero;
 
+import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.infrastructure.rng.WeightedSelector;
 import com.theliems.lokigame.model.entity.hero.ClassDefinition;
 import com.theliems.lokigame.model.entity.hero.Hero;
@@ -7,8 +8,11 @@ import com.theliems.lokigame.model.entity.hero.StatRange;
 import com.theliems.lokigame.model.entity.world.WorldDefinition;
 import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.service.gameData.registry.HeroClassRegistry;
+import com.theliems.lokigame.service.gameData.registry.ItemRegistry;
+import com.theliems.lokigame.service.gameData.registry.NamesRegistry;
 import com.theliems.lokigame.service.gameData.registry.VisualsRegistry;
 import com.theliems.lokigame.service.gameData.registry.WorldRegistry;
+import com.theliems.lokigame.service.inventory.InventoryItemService;
 import com.theliems.lokigame.service.rng.WeightedRngService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class HeroServiceTest {
+class HeroGenerationServiceTest {
 
     @Mock
     private HeroRepository heroRepository;
@@ -36,10 +40,18 @@ class HeroServiceTest {
     @Mock
     private VisualsRegistry visualsRegistry;
     @Mock
+    private NamesRegistry namesRegistry;
+    @Mock
+    private ItemRegistry itemRegistry;
+    @Mock
+    private InventoryItemService inventoryItemService;
+    @Mock
     private WeightedRngService rngService;
+    @Mock
+    private ExceptionFactory exceptionFactory;
 
     @InjectMocks
-    private HeroService heroService;
+    private HeroGenerationService heroGenerationService;
 
     @BeforeEach
     void setUp() {
@@ -49,27 +61,32 @@ class HeroServiceTest {
     void summonHero_ShouldGenerateAndPersistHero() {
         // Mock Data
         UUID ownerId = UUID.randomUUID();
-        
+
         ClassDefinition mockClass = new ClassDefinition();
         mockClass.setId("mage");
         StatRange healthRange = new StatRange();
         healthRange.setMin(50);
         healthRange.setMax(60);
         mockClass.setBaseStats(Map.of("health", healthRange));
-        
+
         WorldDefinition mockWorld = new WorldDefinition();
         mockWorld.setId("midgard");
         mockWorld.setStatMultiplier(1.0);
-        
+
         // Mock Behaviors
         when(heroClassRegistry.getRandomClass()).thenReturn(mockClass);
         when(worldRegistry.rollRandomWorld()).thenReturn(mockWorld);
         when(visualsRegistry.getRandomHair()).thenReturn("hair_01");
         when(visualsRegistry.getRandomFace()).thenReturn("face_01");
-        
-        // Mock RNG Service to return a working selector (using real implementation or simple mock)
-        // Since we can't easily mock the internal "next()" of the real WeightedSelector without complexity,
-        // we'll use a real WeightedSelector but we can't fully control the output unless we mock the selector itself.
+        when(namesRegistry.getRandomFirstName(any())).thenReturn("TestFirstName");
+        when(namesRegistry.getRandomLastName()).thenReturn("TestLastName");
+
+        // Mock RNG Service to return a working selector (using real implementation or
+        // simple mock)
+        // Since we can't easily mock the internal "next()" of the real WeightedSelector
+        // without complexity,
+        // we'll use a real WeightedSelector but we can't fully control the output
+        // unless we mock the selector itself.
         // For this test, we accept random rarity.
         when(rngService.createSelector()).thenAnswer(inv -> new WeightedSelector<Integer>());
 
@@ -80,7 +97,7 @@ class HeroServiceTest {
         });
 
         // Execute
-        Hero hero = heroService.summonHero(ownerId);
+        Hero hero = heroGenerationService.summonHero(ownerId);
 
         // Verify
         assertNotNull(hero);
