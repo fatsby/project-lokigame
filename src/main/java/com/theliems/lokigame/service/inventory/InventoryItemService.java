@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,21 @@ public class InventoryItemService {
 
     public List<InventoryItem> getItemsByOwnerAndType(UUID ownerId, ItemType type) {
         return inventoryItemRepository.findByOwnerIdAndType(ownerId, type);
+    }
+
+    /**
+     * Batch fetch items by their IDs.
+     * Returns a Map for O(1) lookup when populating equipment.
+     *
+     * @param ids collection of item UUIDs to fetch
+     * @return Map of UUID to InventoryItem for efficient lookup
+     */
+    public Map<UUID, InventoryItem> getItemsByIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        return inventoryItemRepository.findAllByIdIn(ids).stream()
+                .collect(Collectors.toMap(InventoryItem::getId, item -> item));
     }
 
     // --- Update ---

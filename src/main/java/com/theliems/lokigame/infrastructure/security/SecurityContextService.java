@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Centralized service for accessing the current security context.
  * Provides methods to retrieve the authenticated user's information.
@@ -44,5 +46,13 @@ public class SecurityContextService {
         return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
+    }
+
+    /**
+     * Get the UUID of currently authenticated user
+     * @return the UUID from the security context
+     */
+    public UUID getCurrentPlayerId() {
+        return getCurrentPlayer().getId();
     }
 }

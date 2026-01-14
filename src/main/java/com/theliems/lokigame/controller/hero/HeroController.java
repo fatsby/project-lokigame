@@ -23,7 +23,6 @@ import java.util.List;
 public class HeroController {
 
     HeroService heroService;
-    HeroMapper heroMapper;
 
     /**
      * Summon a new hero for the authenticated player.
@@ -31,12 +30,11 @@ public class HeroController {
      */
     @PostMapping("/summon")
     public ResponseEntity<ApiResponse<HeroResponseDTO>> summonHero() {
-        Hero hero = heroService.summonHeroForCurrentPlayer();
-        HeroResponseDTO dto = heroMapper.toDTO(hero);
+        HeroResponseDTO hero = heroService.summonHeroForCurrentPlayer();
 
         return ResponseEntity.ok(ApiResponse.<HeroResponseDTO>builder()
                 .message("Hero summoned successfully")
-                .result(dto)
+                .result(hero)
                 .build());
     }
 
@@ -46,14 +44,11 @@ public class HeroController {
      */
     @GetMapping("/my-heroes")
     public ResponseEntity<ApiResponse<List<HeroResponseDTO>>> getMyHeroes() {
-        List<Hero> heroes = heroService.getHeroesForCurrentPlayer();
-        List<HeroResponseDTO> dtos = heroes.stream()
-                .map(heroMapper::toDTO)
-                .toList();
+        List<HeroResponseDTO> heroes = heroService.getHeroesForCurrentPlayer();
 
         return ResponseEntity.ok(ApiResponse.<List<HeroResponseDTO>>builder()
                 .message("Heroes retrieved successfully")
-                .result(dtos)
+                .result(heroes)
                 .build());
     }
 }

@@ -1,5 +1,6 @@
 package com.theliems.lokigame.model.dto.hero;
 
+import com.theliems.lokigame.model.dto.inventory.InventoryItemDTO;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.HeroGender;
 import lombok.Builder;
@@ -24,5 +25,5 @@ public class HeroResponseDTO {
     private double expPerSecond;
     private Map<String, Double> stats;
     private Map<String, String> visuals;
-    private Map<EquipmentSlot, UUID> equipment;
+    private Map<EquipmentSlot, InventoryItemDTO> equipment;
 }
