@@ -12,10 +12,12 @@ import org.springframework.http.HttpStatusCode;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public enum InventoryError implements ErrorCodeInterface {
-    ITEM_NOT_FOUND(20001, "Inventory item not found.", HttpStatus.NOT_FOUND),
-    ITEM_NOT_OWNED(20002, "Player does not own this item.", HttpStatus.FORBIDDEN),
-    INVALID_ITEM_CREATION(20003, "Cannot create item with missing required fields.", HttpStatus.BAD_REQUEST),
-    ITEM_DEFINITION_NOT_FOUND(20004, "Cannot find ItemDefinition of item_id", HttpStatus.BAD_REQUEST);
+    // 3000 - 3999
+    ITEM_NOT_FOUND(3000, "Inventory item not found.", HttpStatus.NOT_FOUND),
+    ITEM_NOT_OWNED(3001, "Player does not own this item.", HttpStatus.FORBIDDEN),
+    INVALID_ITEM_CREATION(3002, "Cannot create item with missing required fields.", HttpStatus.BAD_REQUEST),
+    ITEM_DEFINITION_NOT_FOUND(3003, "Cannot find ItemDefinition of item_id", HttpStatus.BAD_REQUEST);
+
     int code;
     String message;
     HttpStatusCode statusCode;

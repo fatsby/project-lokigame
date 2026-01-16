@@ -1,15 +1,20 @@
 package com.theliems.lokigame.service.hero;
 
+import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
+import com.theliems.lokigame.infrastructure.exception.errorCategories.HeroError;
 import com.theliems.lokigame.infrastructure.security.SecurityContextService;
 import com.theliems.lokigame.mapper.hero.HeroMapper;
 import com.theliems.lokigame.mapper.inventory.InventoryItemMapper;
 import com.theliems.lokigame.model.dto.hero.HeroResponseDTO;
+import com.theliems.lokigame.model.dto.hero.HeroSacrificeDTO;
 import com.theliems.lokigame.model.dto.inventory.InventoryItemDTO;
 import com.theliems.lokigame.model.entity.hero.Hero;
 import com.theliems.lokigame.model.entity.inventory.InventoryItem;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.service.inventory.InventoryItemService;
+
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -39,6 +44,7 @@ public class HeroService {
     InventoryItemMapper inventoryItemMapper;
     InventoryItemService inventoryItemService;
     SecurityContextService securityContextService;
+    ExceptionFactory exceptionFactory;
 
     /**
      * Summon a new hero for the currently authenticated player.
@@ -84,6 +90,51 @@ public class HeroService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public HeroResponseDTO absorbHeroPower(UUID targetHeroId, HeroSacrificeDTO sacrificeDTO) {
+        List<UUID> heroesToAbsorbIds = sacrificeDTO.getHeroesToSacrificeIds();
+        log.info("Absorbing hero power for target hero: {}", targetHeroId);
+        log.info("Heroes to absorb: {}", heroesToAbsorbIds);
+
+        if (heroesToAbsorbIds == null || heroesToAbsorbIds.isEmpty()) {
+            throw exceptionFactory.createNotFoundException("heroesToAbsorbIds", heroesToAbsorbIds,
+                    HeroError.HERO_SACRIFICE_INVALID);
+        }
+        // prevent sacrificing the target hero
+        if (heroesToAbsorbIds.contains(targetHeroId)) {
+            throw exceptionFactory.createNotFoundException("targetHeroId", targetHeroId, HeroError.HERO_SELF_SACRIFICE);
+        }
+
+        UUID currentPlayerId = securityContextService.getCurrentPlayerId();
+        Hero targetHero = heroRepository.findByOwnerIdAndId(currentPlayerId, targetHeroId)
+                .orElseThrow(
+                        () -> exceptionFactory.createNotFoundException("targetHeroId", targetHeroId,
+                                HeroError.HERO_NOT_FOUND));
+
+        List<Object[]> rawStats = heroRepository.aggregateHeroStats(currentPlayerId, heroesToAbsorbIds);
+
+        if (rawStats.isEmpty()) {
+            throw exceptionFactory.createNotFoundException("heroesToAbsorbIds", heroesToAbsorbIds,
+                    HeroError.HERO_NOT_FOUND);
+        }
+
+        Map<String, Double> currentStats = targetHero.getStats();
+
+        for (Object[] row : rawStats) {
+            String statName = (String) row[0];
+            Double bonusValue = ((Number) row[1]).doubleValue();
+            currentStats.merge(statName, bonusValue, Double::sum);
+        }
+
+        heroRepository.toggleHeroesAlive(currentPlayerId, heroesToAbsorbIds, false);
+
+        targetHero.setStats(currentStats);
+
+        HeroResponseDTO dto = heroMapper.toDTO(heroRepository.save(targetHero));
+        populateEquipment(dto, targetHero.getEquipment());
+        return dto;
     }
 
     /**
