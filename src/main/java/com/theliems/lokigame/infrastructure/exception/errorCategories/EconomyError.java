@@ -12,8 +12,9 @@ import org.springframework.http.HttpStatusCode;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public enum EconomyError implements ErrorCodeInterface {
-    INSUFFICIENT_FUNDS(5001, "Player does not have enough currency.", HttpStatus.BAD_REQUEST),
-    NEGATIVE_AMOUNT(5002, "Currency transaction amount must be positive.", HttpStatus.BAD_REQUEST);
+    // 4000 - 4999
+    INSUFFICIENT_FUNDS(4000, "Player does not have enough currency.", HttpStatus.BAD_REQUEST),
+    NEGATIVE_AMOUNT(4001, "Currency transaction amount must be positive.", HttpStatus.BAD_REQUEST);
 
     int code;
     String message;

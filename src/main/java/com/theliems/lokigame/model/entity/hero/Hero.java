@@ -48,6 +48,10 @@ public class Hero {
     @Column(name = "origin_world_id", nullable = false)
     private String originWorldId;
 
+    @Column(name = "alive", nullable = false)
+    @Builder.Default
+    private Boolean alive = true;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer level = 1;
