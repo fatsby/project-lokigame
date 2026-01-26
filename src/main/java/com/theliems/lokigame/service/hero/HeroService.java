@@ -1,149 +1,112 @@
 package com.theliems.lokigame.service.hero;
 
-import com.theliems.lokigame.infrastructure.security.SecurityContextService;
-import com.theliems.lokigame.mapper.hero.HeroMapper;
-import com.theliems.lokigame.mapper.inventory.InventoryItemMapper;
-import com.theliems.lokigame.model.dto.hero.HeroResponseDTO;
-import com.theliems.lokigame.model.dto.inventory.InventoryItemDTO;
+import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.model.entity.hero.Hero;
-import com.theliems.lokigame.model.entity.inventory.InventoryItem;
+import com.theliems.lokigame.model.entity.hero.HeroStats;
+import com.theliems.lokigame.model.entity.equipment.Equipment;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
+import com.theliems.lokigame.model.enums.StatType;
+import com.theliems.lokigame.repository.equipment.EquipmentRepository;
 import com.theliems.lokigame.repository.hero.HeroRepository;
-import com.theliems.lokigame.service.inventory.InventoryItemService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-/**
- * Facade service for hero-related operations.
- * Handles authentication context and delegates to specialized services.
- */
-@Slf4j
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Transactional
+@Slf4j
 public class HeroService {
 
-    HeroGenerationService heroGenerationService;
-    HeroRepository heroRepository;
-    HeroMapper heroMapper;
-    InventoryItemMapper inventoryItemMapper;
-    InventoryItemService inventoryItemService;
-    SecurityContextService securityContextService;
+    private final HeroRepository heroRepository;
+    private final EquipmentRepository equipmentRepository;
 
-    /**
-     * Summon a new hero for the currently authenticated player.
-     *
-     * @return the newly summoned Hero
-     */
-    public HeroResponseDTO summonHeroForCurrentPlayer() {
-        UUID playerUUID = securityContextService.getCurrentPlayerId();
-        Hero summonedHero = heroGenerationService.summonHero(playerUUID);
-        HeroResponseDTO dto = heroMapper.toDTO(summonedHero);
-        populateEquipment(dto, summonedHero.getEquipment());
-        return dto;
+    public List<Hero> getPlayerHeroes(UUID playerId) {
+        List<Hero> heroes = heroRepository.findByPlayerIdFull(playerId);
+        // Recalculate final stats with equipment
+        heroes.forEach(this::recalculateHeroStats);
+        return heroes;
+    }
+
+    private final ExceptionFactory exceptionFactory;
+
+    public Hero getHeroById(UUID heroId) {
+        Hero hero = heroRepository.findById(heroId)
+                .orElseThrow(() -> exceptionFactory.resourceNotFound("Hero", heroId));
+        recalculateHeroStats(hero);
+        return hero;
+    }
+
+    @Transactional
+    public Hero equipItem(UUID heroId, EquipmentSlot slot, UUID equipmentId) {
+        Hero hero = heroRepository.findById(heroId)
+                .orElseThrow(() -> exceptionFactory.resourceNotFound("Hero", heroId));
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> exceptionFactory.resourceNotFound("Equipment", equipmentId));
+
+        // Validate ownership
+        if (!equipment.getOwner().getPlayerId().equals(hero.getOwner().getPlayerId())) {
+            throw exceptionFactory.validationError("Equipment does not belong to the same player");
+        }
+
+        // Equip
+        Map<EquipmentSlot, UUID> equipmentMap = hero.getEquipment();
+        equipmentMap.put(slot, equipmentId);
+        hero.setEquipment(equipmentMap);
+
+        hero = heroRepository.save(hero);
+        recalculateHeroStats(hero);
+
+        log.info("Hero {} equipped {} in slot {}", heroId, equipmentId, slot);
+        return hero;
     }
 
     /**
-     * Get all heroes owned by the currently authenticated player.
-     * Uses batch fetching for equipment items to avoid N+1 query problem.
-     *
-     * @return list of heroes owned by the current player
+     * Recalculates final hero stats by adding equipment bonuses to base stats.
      */
-    public List<HeroResponseDTO> getHeroesForCurrentPlayer() {
-        UUID playerUUID = securityContextService.getCurrentPlayerId();
-        List<Hero> heroes = heroRepository.findByOwnerId(playerUUID);
-
-        if (heroes.isEmpty()) {
-            return List.of();
+    private void recalculateHeroStats(Hero hero) {
+        // Reset final values to base values
+        for (HeroStats stat : hero.getStats()) {
+            stat.setFinalValue(stat.getBaseValue());
         }
 
-        // Collect all equipment item UUIDs across all heroes
-        Set<UUID> allEquipmentIds = heroes.stream()
-                .filter(h -> h.getEquipment() != null)
-                .flatMap(h -> h.getEquipment().values().stream())
-                .collect(Collectors.toSet());
-
-        // Batch fetch all equipment items in a SINGLE query
-        Map<UUID, InventoryItem> itemsById = inventoryItemService.getItemsByIds(allEquipmentIds);
-
-        // Map heroes to DTOs and populate equipment from the pre-fetched map
-        return heroes.stream()
-                .map(hero -> {
-                    HeroResponseDTO dto = heroMapper.toDTO(hero);
-                    populateEquipmentFromMap(dto, hero.getEquipment(), itemsById);
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Populates the equipment field of a HeroResponseDTO with full InventoryItemDTO
-     * objects.
-     *
-     * @param dto            the HeroResponseDTO to populate
-     * @param equipmentUuids the map of EquipmentSlot to InventoryItem UUIDs from
-     *                       the Hero entity
-     */
-    private void populateEquipment(HeroResponseDTO dto, Map<EquipmentSlot, UUID> equipmentUuids) {
-        if (equipmentUuids == null || equipmentUuids.isEmpty()) {
-            dto.setEquipment(new EnumMap<>(EquipmentSlot.class));
-            return;
-        }
-
-        Map<EquipmentSlot, InventoryItemDTO> equipmentDTOs = new EnumMap<>(EquipmentSlot.class);
-
-        for (Map.Entry<EquipmentSlot, UUID> entry : equipmentUuids.entrySet()) {
-            EquipmentSlot slot = entry.getKey();
-            UUID itemId = entry.getValue();
-
-            try {
-                InventoryItem item = inventoryItemService.getItemById(itemId);
-                InventoryItemDTO itemDTO = inventoryItemMapper.toDTO(item);
-                equipmentDTOs.put(slot, itemDTO);
-            } catch (Exception e) {
-                log.warn("Failed to fetch equipment item {} for slot {}: {}", itemId, slot, e.getMessage());
-                // Skip this slot if item not found, but log for debugging
+        // Add equipment bonuses
+        Map<EquipmentSlot, UUID> equipmentMap = hero.getEquipment();
+        for (Map.Entry<EquipmentSlot, UUID> entry : equipmentMap.entrySet()) {
+            UUID equipmentId = entry.getValue();
+            if (equipmentId != null) {
+                Equipment equipment = equipmentRepository.findById(equipmentId).orElse(null);
+                if (equipment != null) {
+                    applyEquipmentStats(hero, equipment);
+                }
             }
         }
-
-        dto.setEquipment(equipmentDTOs);
     }
 
-    /**
-     * Populates equipment from a pre-fetched items map (batch-optimized).
-     * Used when loading multiple heroes to avoid N+1 queries.
-     */
-    private void populateEquipmentFromMap(HeroResponseDTO dto, Map<EquipmentSlot, UUID> equipmentUuids,
-            Map<UUID, InventoryItem> itemsById) {
-        if (equipmentUuids == null || equipmentUuids.isEmpty()) {
-            dto.setEquipment(new EnumMap<>(EquipmentSlot.class));
-            return;
+    private void applyEquipmentStats(Hero hero, Equipment equipment) {
+        // Apply base stats
+        for (var stat : equipment.getBaseStats()) {
+            addStatBonus(hero, stat.getStatType(), stat.getValue());
         }
 
-        Map<EquipmentSlot, InventoryItemDTO> equipmentDTOs = new EnumMap<>(EquipmentSlot.class);
+        // Apply random stats
+        for (var stat : equipment.getRandomStats()) {
+            addStatBonus(hero, stat.getStatType(), stat.getValue());
+        }
+    }
 
-        for (Map.Entry<EquipmentSlot, UUID> entry : equipmentUuids.entrySet()) {
-            EquipmentSlot slot = entry.getKey();
-            UUID itemId = entry.getValue();
-            InventoryItem item = itemsById.get(itemId);
-
-            if (item != null) {
-                equipmentDTOs.put(slot, inventoryItemMapper.toDTO(item));
-            } else {
-                log.warn("Equipment item {} not found in pre-fetched map for slot {}", itemId, slot);
+    private void addStatBonus(Hero hero, StatType statType, Double value) {
+        for (HeroStats heroStat : hero.getStats()) {
+            if (heroStat.getStatType() == statType) {
+                heroStat.setFinalValue(heroStat.getFinalValue() + value);
+                break;
             }
         }
-
-        dto.setEquipment(equipmentDTOs);
     }
 }
