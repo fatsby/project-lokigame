@@ -3,9 +3,7 @@ package com.theliems.lokigame.service.dungeon;
 import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.model.entity.dungeon.DropTable;
 import com.theliems.lokigame.model.entity.dungeon.Dungeon;
-import com.theliems.lokigame.model.entity.equipment.Equipment;
 import com.theliems.lokigame.model.entity.player.Player;
-import com.theliems.lokigame.model.enums.EquipmentType;
 import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import com.theliems.lokigame.repository.player.PlayerRepository;
 import com.theliems.lokigame.service.equipment.EquipmentService;
@@ -63,20 +61,6 @@ public class DungeonService {
                 .amount(goldReward)
                 .build());
 
-        // Roll for equipment
-        if (random.nextDouble() < dropTable.getEquipmentDropChance()) {
-            EquipmentType randomType = EquipmentType.values()[random.nextInt(EquipmentType.values().length)];
-            // Use player level (default to 1 if not available) - in production, track player level separately
-            int playerLevel = Math.max(1, player.getCurrency().intValue() / 1000); // Temporary: derive level from currency
-            Equipment equipment = equipmentService.generateEquipment(
-                    playerId, randomType, playerLevel, dungeon.getLevel()
-            );
-            rewards.add(Reward.builder()
-                    .type("EQUIPMENT")
-                    .equipmentId(equipment.getId())
-                    .build());
-        }
-
         // Roll for materials (placeholder)
         if (random.nextDouble() < dropTable.getMaterialDropChance()) {
             rewards.add(Reward.builder()
@@ -103,8 +87,7 @@ public class DungeonService {
     @Data
     @Builder
     public static class Reward {
-        private String type; // GOLD, EQUIPMENT, MATERIAL
+        private String type; // GOLD, MATERIAL
         private Long amount;
-        private UUID equipmentId;
     }
 }

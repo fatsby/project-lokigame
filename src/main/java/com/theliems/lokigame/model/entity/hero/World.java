@@ -27,8 +27,9 @@ public class World {
     private double rarityWeight; // Higher = More Common (e.g., 100 vs 5)
 
     // The "Bonus" logic
+    @Column(name = "stat_multiplier")
     private double statMultiplier;
 
     // For Future Phase: Dungeon Scaling
-    private double dungeonDifficultyMod;
+        private double dungeonDifficultyMod;
 }

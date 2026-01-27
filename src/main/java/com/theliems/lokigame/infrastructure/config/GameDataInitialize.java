@@ -11,7 +11,6 @@ import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
 import com.theliems.lokigame.repository.hero.WorldRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

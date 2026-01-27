@@ -44,6 +44,12 @@ public class EquipmentController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EquipmentResponse> getEquipmentById(@PathVariable UUID id) {
+        Equipment equipment = equipmentService.getEquipmentById(id);
+        return ResponseEntity.ok(mapToResponse(equipment));
+    }
+
     private EquipmentResponse mapToResponse(Equipment equipment) {
         List<EquipmentResponse.EquipmentStatResponse> baseStats = equipment.getBaseStats().stream()
                 .map(stat -> EquipmentResponse.EquipmentStatResponse.builder()

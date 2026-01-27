@@ -12,13 +12,13 @@ import java.util.UUID;
 
 @Repository
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, UUID> {
-    List<InventoryItem> findByOwnerId(UUID ownerId);
+    List<InventoryItem> findByOwner_PlayerId(UUID ownerId);
 
-    List<InventoryItem> findByOwnerIdAndType(UUID ownerId, ItemType type);
+    List<InventoryItem> findByOwner_PlayerIdAndType(UUID ownerId, ItemType type);
 
-    Optional<InventoryItem> findByOwnerIdAndItemId(UUID ownerId, String itemId);
+    Optional<InventoryItem> findByOwner_PlayerIdAndItemId(UUID ownerId, String itemId);
 
-    boolean existsByOwnerIdAndItemId(UUID ownerId, String itemId);
+    boolean existsByOwner_PlayerIdAndItemId(UUID ownerId, String itemId);
 
     /**
      * Batch fetch items by their IDs.

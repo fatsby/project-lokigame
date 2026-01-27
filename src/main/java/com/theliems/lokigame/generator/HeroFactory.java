@@ -38,7 +38,7 @@ public class HeroFactory {
         int star = rollStar(random);
 
         // Generate base stats from class
-        List<HeroStats> stats = generateHeroStats(heroClass, origin, star, random);
+        List<HeroStats> stats = generateHeroStats(heroClass, origin, star, random,originWorld);
 
         // Generate unique personality seed
         long personalitySeed = random.nextLong();
@@ -82,7 +82,7 @@ public class HeroFactory {
         return 7; // 0.1% chance
     }
 
-    private List<HeroStats> generateHeroStats(HeroClass heroClass, Origin origin, int star, java.util.Random random) {
+    private List<HeroStats> generateHeroStats(HeroClass heroClass, Origin origin, int star, java.util.Random random,World world) {
         List<HeroStats> stats = new ArrayList<>();
 
         // Star multiplier (higher star = better stats)
@@ -103,9 +103,14 @@ public class HeroFactory {
             // Apply star multiplier
             baseValue *= starMultiplier;
 
+            // need to optimize later
+            double worldModifier = world.getStatMultiplier();
+            baseValue *= (1.0 + worldModifier);
+
             // Add random variance (90% to 110%)
             double variance = 0.9 + random.nextDouble() * 0.2; // 0.9 to 1.1
             baseValue *= variance;
+
 
             HeroStats heroStat = HeroStats.builder()
                     .statType(statType)
@@ -141,4 +146,9 @@ public class HeroFactory {
         String[] lastNames = {"Storm", "Shadow", "Flame", "Frost", "Light", "Dark", "Star", "Moon", "Sun", "Void"};
         return lastNames[random.nextInt(lastNames.length)];
     }
+
+
+
+
+
 }

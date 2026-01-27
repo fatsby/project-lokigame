@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/dungeon")
@@ -31,9 +32,8 @@ public class DungeonController {
                 .map(reward -> DungeonRunResponse.RewardResponse.builder()
                         .type(reward.getType())
                         .amount(reward.getAmount())
-                        .equipmentId(reward.getEquipmentId())
                         .build())
-                .toList();
+                .collect(Collectors.toList());
 
         DungeonRunResponse response = DungeonRunResponse.builder()
                 .dungeonId(result.getDungeonId())

@@ -9,9 +9,9 @@
 
 ## 2. Technology Stack
 * **Language:** Java 21 (LTS)
-* **Framework:** Spring Boot 3.3+ (Web, Data JPA, Security, Validation)
+* **Framework:** Spring Boot 3.5.9 (Web, Data JPA, Security, Validation)
 * **Database:** PostgreSQL 16+ (Primary), Redis (Session/Cache)
-* **Build Tool:** Maven or Gradle
+* **Build Tool:** Maven
 * **Auth:** Spring Security + JWT (Stateless)
 * **Utilities:** * `Lombok` (Boilerplate)
     * `Mapstruct`
