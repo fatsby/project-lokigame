@@ -205,7 +205,7 @@ Authorization: Bearer <accessToken>
 - `level` (Integer) - Current level
 - `experience` (Long) - Experience points
 - `randomSeed` (Long) - Uniqueness seed
-- `equipment` (Map<EquipmentSlot, UUID>) - Equipped items
+- `equipment` (Map<EquipmentSlot, UUID>) - Equipped items (stores `InventoryItem` IDs)
 - `stats` (List<HeroStats>) - Hero statistics
 
 #### HeroStats
@@ -215,14 +215,25 @@ Authorization: Bearer <accessToken>
 - `baseValue` (Double) - Base stat value
 - `finalValue` (Double) - Final value with equipment bonuses
 
-#### Equipment
-- `id` (UUID) - Primary key
-- `owner` (Player) - Owner
+#### Equipment (Static Definition / Rolled Instance)
+- `id` (UUID) - Primary key, represents a unique *generated instance* of an equipment.
 - `equipmentType` (EquipmentType) - WEAPON, HELMET, etc.
-- `rarity` (Rarity) - COMMON, RARE, EPIC, LEGENDARY
+- `rarity` (Rarity) - COMMON, RARE, EPIC, LEGENDARY, GODSENT
 - `level` (Integer) - Equipment level
-- `baseStats` (List<EquipmentStat>) - Base stat modifiers
-- `randomStats` (List<EquipmentStat>) - Random stat modifiers
+- `baseStats` (List<EquipmentStat>) - Base stat modifiers for this instance
+- `randomStats` (List<EquipmentStat>) - Random stat modifiers for this instance
+*Note: The `Equipment` entity now stores the unique, rolled properties of an equipment item. It does not have an `owner` field. Player ownership is managed via `InventoryItem`.*
+
+#### InventoryItem
+- `id` (UUID) - Primary key, unique ID of the *owned instance* of an item.
+- `owner` (Player) - The player who owns this item.
+- `itemId` (String) - Reference ID to the static ItemDefinition (or in the case of generated equipment, the `Equipment.id`).
+- `type` (ItemType) - VISUAL, WEAPON, ARMOR, ACCESSORY, EQUIPMENT
+- `tier` (ItemTier) - NORMAL, RARE, EPIC, LEGENDARY, GODSENT (derived from Equipment Rarity for equipment)
+- `metadata` (JSONB) - Stores instance-specific data, such as the associated `Equipment.id` for equipment items.
+
+#### PlayerEquipmentResponse (DTO)
+- Combines relevant data from an `InventoryItem` (instance ID, item type, tier, metadata) and its associated `Equipment` entity (definition ID, equipment type, rarity, stats) to provide a comprehensive view of a player-owned equipment.
 
 #### CurrencyRequest
 - `id` (UUID) - Primary key
@@ -256,6 +267,13 @@ Authorization: Bearer <accessToken>
 - `CRIT_DAMAGE` - Critical Hit Damage Multiplier
 - `SPEED` - Turn order speed
 
+#### ItemType
+- `VISUAL`
+- `WEAPON`
+- `ARMOR`
+- `ACCESSORY`
+- `EQUIPMENT`
+
 #### EquipmentType
 - `WEAPON`
 - `HELMET`
@@ -263,6 +281,7 @@ Authorization: Bearer <accessToken>
 - `BOOTS`
 - `RING`
 - `NECKLACE`
+*Note: Includes a `toItemType()` method for mapping specific equipment types to general `ItemType` categories.*
 
 #### EquipmentSlot
 - `WEAPON`
@@ -277,6 +296,8 @@ Authorization: Bearer <accessToken>
 - `RARE` - 2-3 random stats
 - `EPIC` - 3-4 random stats
 - `LEGENDARY` - 4-6 random stats
+- `GODSENT` - Fixed stats, highest tier.
+*Note: Includes a `toItemTier()` method for mapping rarity to `ItemTier`.*
 
 #### Role
 - `ROLE_USER` - Standard player
@@ -367,21 +388,28 @@ Body: {
   "playerLevel": 5,
   "dungeonLevel": 3
 }
-Response: {
-  "id": "uuid",
-  "equipmentType": "WEAPON",
-  "rarity": "EPIC",
-  "level": 4,
-  "baseStats": [...],
-  "randomStats": [...]
-}
+Response: PlayerEquipmentResponse (details combined from InventoryItem and Equipment)
 ```
 
 #### Get My Equipment
 ```
 GET /api/equipment/my-equipment
 Headers: Authorization: Bearer <token>
-Response: [EquipmentResponse, ...]
+Response: [PlayerEquipmentResponse, ...]
+```
+
+#### Get Specific Player Equipment Instance
+```
+GET /api/equipment/instance/{inventoryItemId}
+Headers: Authorization: Bearer <token>
+Response: PlayerEquipmentResponse
+```
+
+#### Get All Equipment for a Hero
+```
+GET /api/equipment/hero/{heroId}/equipment
+Headers: Authorization: Bearer <token>
+Response: [PlayerEquipmentResponse, ...]
 ```
 
 ### Battle
@@ -511,18 +539,19 @@ Response: CurrencyRequestResponse
 
 **Process:**
 1. Player calls `/api/equipment/generate`
-2. Random rarity selected (weighted: COMMON 50%, RARE 30%, EPIC 15%, LEGENDARY 5%)
-3. Effective level calculated from player and dungeon levels
-4. Base stats generated based on equipment type
-5. Random stats generated (count based on rarity)
-6. Stat values scaled by level, rarity, and random variance
-7. Equipment saved to database
+2. A unique `Equipment` instance (with rolled stats, rarity, etc.) is generated and saved. This `Equipment` entity acts as the specific definition of the item.
+3. An `InventoryItem` is created for the player, referencing the newly generated `Equipment`'s ID. This `InventoryItem` represents the player's ownership of that specific equipment instance.
+4. The `InventoryItem`'s `type` is set based on the `EquipmentType` (e.g., `WEAPON`, `ARMOR`).
+5. The `InventoryItem`'s `tier` is derived from the `Equipment`'s `rarity`.
+6. Both the `Equipment` and `InventoryItem` are saved to the database.
+7. The system returns a `PlayerEquipmentResponse` DTO combining details from both the `InventoryItem` and `Equipment`.
 
 **Rarity Rules:**
 - COMMON: 1-2 random stats, 1.0x multiplier
 - RARE: 2-3 random stats, 1.5x multiplier
 - EPIC: 3-4 random stats, 2.5x multiplier
 - LEGENDARY: 4-6 random stats, 4.0x multiplier
+- GODSENT: Fixed stats, highest tier, bypassing standard RNG generation.
 
 ### Battle System
 
@@ -610,10 +639,23 @@ CREATE TABLE hero_stats (
 ```sql
 CREATE TABLE equipment (
     id UUID PRIMARY KEY,
-    owner_id UUID REFERENCES players(player_id),
     equipment_type VARCHAR(50) NOT NULL,
     rarity VARCHAR(50) NOT NULL,
     level INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+```
+
+#### inventory_items
+```sql
+CREATE TABLE inventory_items (
+    id UUID PRIMARY KEY,
+    owner_id UUID REFERENCES players(player_id) NOT NULL,
+    item_id VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    tier VARCHAR(50) NOT NULL,
+    metadata JSONB,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );

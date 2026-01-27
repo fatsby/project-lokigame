@@ -54,19 +54,45 @@ public class DungeonService {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         List<Reward> rewards = new ArrayList<>();
 
-        // Calculate gold reward
+        // 1. Calculate and Persist Gold Reward
         long goldReward = (long) (dropTable.getBaseGold() * dropTable.getGoldMultiplier() * dungeon.getLevel());
+        player.setGold(player.getGold() + goldReward);
+        playerRepository.save(player); // Persist gold update
+
         rewards.add(Reward.builder()
                 .type("GOLD")
                 .amount(goldReward)
                 .build());
 
-        // Roll for materials (placeholder)
-        if (random.nextDouble() < dropTable.getMaterialDropChance()) {
+        // 2. Roll for Equipment
+        if (dropTable.getEquipmentDropChance() != null && random.nextDouble() < dropTable.getEquipmentDropChance()) {
+            // Pick a random equipment type
+            com.theliems.lokigame.model.enums.EquipmentType[] types = com.theliems.lokigame.model.enums.EquipmentType
+                    .values();
+            com.theliems.lokigame.model.enums.EquipmentType randomType = types[random.nextInt(types.length)];
+
+            // Generate and persist equipment
+            // Using dungeon level for both playerLevel and dungeonLevel as Player entity
+            // has no level
+            var inventoryItem = equipmentService.generateEquipment(playerId, randomType, dungeon.getLevel(),
+                    dungeon.getLevel());
+
             rewards.add(Reward.builder()
-                    .type("MATERIAL")
+                    .type("EQUIPMENT")
                     .amount(1L)
+                    .itemId(inventoryItem.getId()) // Add ID reference
+                    .name(inventoryItem.getTier() + " " + inventoryItem.getType()) // Add
+                                                                                   // description/name
                     .build());
+        }
+
+        // 3. Roll for Materials (Placeholder - Logic not fully implemented in ItemType
+        // yet)
+        if (dropTable.getMaterialDropChance() != null && random.nextDouble() < dropTable.getMaterialDropChance()) {
+            // For now, we don't persist materials as there is no specific ItemType.MATERIAL
+            // We can just log it or add a generic reward if needed.
+            // Skipping persistence to avoid errors, or considering it 'currency' logic
+            // later.
         }
 
         log.info("Player {} completed dungeon {} and received {} rewards", playerId, dungeonId, rewards.size());
@@ -87,7 +113,9 @@ public class DungeonService {
     @Data
     @Builder
     public static class Reward {
-        private String type; // GOLD, MATERIAL
+        private String type; // GOLD, EQUIPMENT
         private Long amount;
+        private UUID itemId;
+        private String name;
     }
 }

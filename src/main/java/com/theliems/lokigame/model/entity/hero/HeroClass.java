@@ -32,7 +32,7 @@ public class HeroClass {
      * Base stat values for this class.
      * Format: {"HP": 100.0, "ATK": 50.0}
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "hero_class_base_stats", joinColumns = @JoinColumn(name = "hero_class_id"))
     @MapKeyEnumerated(EnumType.STRING)
     @MapKeyColumn(name = "stat_type")
@@ -44,7 +44,7 @@ public class HeroClass {
      * Stat modifiers as multipliers.
      * Format: {"ATK": 0.2, "CRIT_RATE": 0.15} means +20% ATK, +15% CRIT_RATE
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "hero_class_stat_modifiers", joinColumns = @JoinColumn(name = "hero_class_id"))
     @MapKeyEnumerated(EnumType.STRING)
     @MapKeyColumn(name = "stat_type")

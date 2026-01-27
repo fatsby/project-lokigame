@@ -44,7 +44,7 @@ public class CurrencyRequestService {
     }
 
     public List<CurrencyRequest> getPendingRequests() {
-        return currencyRequestRepository.findByStatus(CurrencyRequest.RequestStatus.PENDING);
+        return currencyRequestRepository.findByStatusFetchPlayer(CurrencyRequest.RequestStatus.PENDING);
     }
 
     @Transactional

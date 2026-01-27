@@ -176,6 +176,7 @@ public class EquipmentGenerator {
             case RARE -> 1.5;
             case EPIC -> 2.5;
             case LEGENDARY -> 4.0;
+            case GODSENT -> 5.0; // Added case for GODSENT rarity
         };
     }
 }

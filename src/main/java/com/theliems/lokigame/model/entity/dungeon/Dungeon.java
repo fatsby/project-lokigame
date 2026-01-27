@@ -32,7 +32,7 @@ public class Dungeon {
     @Builder.Default
     private Integer level = 1;
 
-    @OneToMany(mappedBy = "dungeon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dungeon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<Monster> monsters = new ArrayList<>();
 

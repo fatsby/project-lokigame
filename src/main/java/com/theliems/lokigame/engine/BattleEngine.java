@@ -91,6 +91,8 @@ public class BattleEngine {
                             .logs(logs)
                             .winner("MONSTERS")
                             .turns(turn)
+                            .heroUnits(heroUnits)
+                            .monsterUnits(monsterUnits)
                             .build();
                 }
 
@@ -103,6 +105,8 @@ public class BattleEngine {
                             .logs(logs)
                             .winner("HEROES")
                             .turns(turn)
+                            .heroUnits(heroUnits)
+                            .monsterUnits(monsterUnits)
                             .build();
                 }
             }
@@ -117,6 +121,8 @@ public class BattleEngine {
                 .logs(logs)
                 .winner("DRAW")
                 .turns(turn)
+                .heroUnits(heroUnits)
+                .monsterUnits(monsterUnits)
                 .build();
     }
 
@@ -155,7 +161,8 @@ public class BattleEngine {
                 .build();
     }
 
-    private BattleUnit selectTarget(BattleUnit attacker, List<BattleUnit> heroUnits, List<BattleUnit> monsterUnits, ThreadLocalRandom random) {
+    private BattleUnit selectTarget(BattleUnit attacker, List<BattleUnit> heroUnits, List<BattleUnit> monsterUnits,
+            ThreadLocalRandom random) {
         List<BattleUnit> targets;
         if (attacker.isHero()) {
             targets = monsterUnits.stream()
@@ -211,6 +218,8 @@ public class BattleEngine {
         private List<BattleLogEntry> logs;
         private String winner; // "HEROES", "MONSTERS", or "DRAW"
         private int turns;
+        private List<BattleUnit> heroUnits;
+        private List<BattleUnit> monsterUnits;
     }
 
     @Data

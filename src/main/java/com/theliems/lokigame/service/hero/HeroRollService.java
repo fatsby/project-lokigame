@@ -8,7 +8,10 @@ import com.theliems.lokigame.model.entity.hero.*;
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.EquipmentType;
+import com.theliems.lokigame.model.entity.inventory.InventoryItem; // Added
+import com.theliems.lokigame.model.enums.ItemType; // Added
 import com.theliems.lokigame.repository.equipment.EquipmentRepository;
+import com.theliems.lokigame.repository.inventory.InventoryItemRepository; // Added
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
 import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
@@ -38,6 +41,8 @@ public class HeroRollService {
     private final ExceptionFactory exceptionFactory;
     private final EquipmentGenerator equipmentGenerator;
     private final EquipmentRepository equipmentRepository;
+    private final InventoryItemRepository inventoryItemRepository; // Injected
+    private final HeroService heroService; // Injected
 
     private static final Long HERO_ROLL_COST = 100L; // Cost to roll a hero
 
@@ -45,7 +50,8 @@ public class HeroRollService {
     public Hero rollHero(Player player) {
         // Check if player has enough currency
         if (player.getCurrency() < HERO_ROLL_COST) {
-            throw exceptionFactory.validationError("Insufficient currency. Required: %d, Available: %d", HERO_ROLL_COST, player.getCurrency());
+            throw exceptionFactory.validationError("Insufficient currency. Required: %d, Available: %d", HERO_ROLL_COST,
+                    player.getCurrency());
         }
 
         // Deduct currency
@@ -65,7 +71,7 @@ public class HeroRollService {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         HeroClass heroClass = heroClasses.get(random.nextInt(heroClasses.size()));
         Origin origin = origins.get(random.nextInt(origins.size()));
-        World world = rollWorld(worlds,random);
+        World world = rollWorld(worlds, random);
         // Generate unique random seed
         long randomSeed = random.nextLong();
 
@@ -80,14 +86,29 @@ public class HeroRollService {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             EquipmentType type = getEquipmentTypeForSlot(slot);
             if (type != null) {
+                // Generate the Equipment definition (rolled stats)
                 Equipment equipment = equipmentGenerator.generateEquipment(type, 1, 1);
-                equipment.setOwner(player);
-                equipmentRepository.save(equipment);
-                hero.getEquipment().put(slot, equipment.getId());
+                equipment = equipmentRepository.save(equipment); // Save the equipment definition
+
+                // Create an InventoryItem instance for the player
+                InventoryItem inventoryItem = InventoryItem.builder()
+                        .owner(player)
+                        .itemId(equipment.getId().toString()) // Use Equipment's ID as the item reference
+                        .type(equipment.getEquipmentType().toItemType()) // Map EquipmentType to ItemType
+                        .tier(equipment.getRarity().toItemTier()) // Map Rarity to ItemTier
+                        .metadata(java.util.Map.of("equipmentId", equipment.getId().toString())) // Store reference to
+                                                                                                 // actual Equipment
+                                                                                                 // entity
+                        .build();
+                inventoryItem = inventoryItemRepository.save(inventoryItem);
+
+                hero.getEquipment().put(slot, inventoryItem.getId()); // Store inventoryItemId
             }
         }
         hero = heroRepository.save(hero);
 
+        // Recalculate stats with the new equipment
+        heroService.recalculateHeroStats(hero);
 
         log.info("Player {} rolled hero: {} {} (Class: {}, Origin: {}, Star: {}). Cost: {}",
                 player.getPlayerId(), hero.getFirstName(), hero.getLastName(),
@@ -107,7 +128,6 @@ public class HeroRollService {
             default -> null;
         };
     }
-
 
     private World rollWorld(List<World> worlds, Random random) {
         double totalWeight = worlds.stream()

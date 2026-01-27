@@ -23,9 +23,11 @@ public class CurrencyRequestController {
     private final PlayerService playerService;
 
     @PostMapping
-    public ResponseEntity<CurrencyRequestResponse> createRequest(@Valid @RequestBody CurrencyRequestCreateRequest request) {
+    public ResponseEntity<CurrencyRequestResponse> createRequest(
+            @Valid @RequestBody CurrencyRequestCreateRequest request) {
         UUID playerId = playerService.getCurrentPlayer().getPlayerId();
-        CurrencyRequest created = currencyRequestService.createRequest(playerId, request.getAmount(), request.getReason());
+        CurrencyRequest created = currencyRequestService.createRequest(playerId, request.getAmount(),
+                request.getReason());
         return ResponseEntity.ok(mapToResponse(created));
     }
 
@@ -44,7 +46,7 @@ public class CurrencyRequestController {
                 .id(request.getId())
                 .amount(request.getAmount())
                 .reason(request.getReason())
-                .status(request.getStatus().name())
+                .status(request.getStatus()) // Pass enum directly
                 .adminNotes(request.getAdminNotes())
                 .createdAt(request.getAuditMetaData().getCreatedAt())
                 .build();

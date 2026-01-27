@@ -31,5 +31,5 @@ public class World {
     private double statMultiplier;
 
     // For Future Phase: Dungeon Scaling
-        private double dungeonDifficultyMod;
+    private double dungeonDifficultyMod;
 }

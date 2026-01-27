@@ -13,7 +13,6 @@ import java.util.UUID;
 public interface HeroRepository extends JpaRepository<Hero, UUID> {
     List<Hero> findByOwner_PlayerId(UUID ownerId);
 
-
     @Query("""
                 select distinct h from Hero h
                 join fetch h.heroClass
@@ -23,5 +22,15 @@ public interface HeroRepository extends JpaRepository<Hero, UUID> {
                 where h.owner.playerId = :playerId
             """)
     List<Hero> findByPlayerIdFull(@Param("playerId") UUID playerId);
+
+    @Query("""
+                select distinct h from Hero h
+                join fetch h.heroClass
+                join fetch h.origin
+                join fetch h.originWorld
+                left join fetch h.stats
+                where h.id = :heroId
+            """)
+    java.util.Optional<Hero> findByIdWithDetails(@Param("heroId") UUID heroId);
 
 }

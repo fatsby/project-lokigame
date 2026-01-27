@@ -33,7 +33,7 @@ public class Origin {
      * Passive stat modifiers as JSONB.
      * Format: {"HP": 0.1, "ATK": 0.05} means +10% HP, +5% ATK
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "origin_stat_modifiers", joinColumns = @JoinColumn(name = "origin_id"))
     @MapKeyEnumerated(EnumType.STRING)
     @MapKeyColumn(name = "stat_type")

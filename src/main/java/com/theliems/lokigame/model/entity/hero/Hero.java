@@ -48,9 +48,6 @@ public class Hero {
     @Column(nullable = false)
     private int rarity; // 1-7 Stars
 
-//    @Column(name = "origin_world_id", nullable = false)
-//    private String originWorldId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "worldId")
     private World originWorld;

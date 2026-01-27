@@ -3,6 +3,8 @@ package com.theliems.lokigame.repository.economy;
 import com.theliems.lokigame.model.entity.economy.CurrencyRequest;
 import com.theliems.lokigame.model.entity.player.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +15,12 @@ public interface CurrencyRequestRepository extends JpaRepository<CurrencyRequest
     List<CurrencyRequest> findByPlayer(Player player);
     List<CurrencyRequest> findByPlayer_PlayerId(UUID playerId);
     List<CurrencyRequest> findByStatus(CurrencyRequest.RequestStatus status);
+
+    @Query("""
+        SELECT cr FROM CurrencyRequest cr
+        JOIN FETCH cr.player
+        WHERE cr.status = :status
+    """)
+    List<CurrencyRequest> findByStatusFetchPlayer(@Param("status") CurrencyRequest.RequestStatus status);
+
 }

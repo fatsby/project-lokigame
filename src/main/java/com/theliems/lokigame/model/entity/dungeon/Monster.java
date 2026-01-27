@@ -39,9 +39,10 @@ public class Monster {
 
     /**
      * Monster stats stored as JSONB for flexibility.
-     * Format: {"HP": 1000.0, "ATK": 100.0, "DEF": 50.0, "SPEED": 80.0, "CRIT_RATE": 0.1, "CRIT_DAMAGE": 1.5}
+     * Format: {"HP": 1000.0, "ATK": 100.0, "DEF": 50.0, "SPEED": 80.0, "CRIT_RATE":
+     * 0.1, "CRIT_DAMAGE": 1.5}
      */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "monster_stats", joinColumns = @JoinColumn(name = "monster_id"))
     @MapKeyEnumerated(EnumType.STRING)
     @MapKeyColumn(name = "stat_type")

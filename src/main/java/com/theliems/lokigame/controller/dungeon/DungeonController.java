@@ -1,9 +1,10 @@
 package com.theliems.lokigame.controller.dungeon;
 
-import com.theliems.lokigame.model.dto.dungeon.DungeonRunRequest;
-import com.theliems.lokigame.model.dto.dungeon.DungeonRunResponse;
-import com.theliems.lokigame.service.dungeon.DungeonService;
-import com.theliems.lokigame.service.player.PlayerService;
+import com.theliems.lokigame.mapper.DungeonMapper;
+import com.theliems.lokigame.model.dto.dungeon.DungeonRequest;
+import com.theliems.lokigame.model.dto.dungeon.DungeonResponse;
+import com.theliems.lokigame.model.entity.dungeon.Dungeon;
+import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,29 +18,57 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DungeonController {
 
-    private final DungeonService dungeonService;
-    private final PlayerService playerService;
+        private final DungeonRepository dungeonRepository;
+        private final DungeonMapper dungeonMapper;
+        private final com.theliems.lokigame.service.dungeon.DungeonService dungeonService;
 
-    @PostMapping("/run")
-    public ResponseEntity<DungeonRunResponse> runDungeon(@RequestBody DungeonRunRequest request) {
-        UUID playerId = playerService.getCurrentPlayer().getPlayerId();
-        DungeonService.DungeonRunResult result = dungeonService.runDungeon(
-                playerId,
-                request.getDungeonId()
-        );
+        @GetMapping
+        public ResponseEntity<List<DungeonResponse>> getAll() {
+                return ResponseEntity.ok(dungeonRepository.findAll().stream()
+                                .map(dungeonMapper::toDto)
+                                .collect(Collectors.toList()));
+        }
 
-        List<DungeonRunResponse.RewardResponse> rewards = result.getRewards().stream()
-                .map(reward -> DungeonRunResponse.RewardResponse.builder()
-                        .type(reward.getType())
-                        .amount(reward.getAmount())
-                        .build())
-                .collect(Collectors.toList());
+        @GetMapping("/{id}")
+        public ResponseEntity<DungeonResponse> getById(@PathVariable UUID id) {
+                return dungeonRepository.findById(id)
+                                .map(dungeonMapper::toDto)
+                                .map(ResponseEntity::ok)
+                                .orElse(ResponseEntity.notFound().build());
+        }
 
-        DungeonRunResponse response = DungeonRunResponse.builder()
-                .dungeonId(result.getDungeonId())
-                .rewards(rewards)
-                .build();
+        @PostMapping
+        public ResponseEntity<DungeonResponse> create(@RequestBody DungeonRequest request) {
+                Dungeon entity = dungeonMapper.toEntity(request);
+                entity = dungeonRepository.save(entity);
+                return ResponseEntity.ok(dungeonMapper.toDto(entity));
+        }
 
-        return ResponseEntity.ok(response);
-    }
+        @PutMapping("/{id}")
+        public ResponseEntity<DungeonResponse> update(@PathVariable UUID id, @RequestBody DungeonRequest request) {
+                return dungeonRepository.findById(id)
+                                .map(entity -> {
+                                        dungeonMapper.updateEntityFromDto(request, entity);
+                                        entity = dungeonRepository.save(entity);
+                                        return ResponseEntity.ok(dungeonMapper.toDto(entity));
+                                })
+                                .orElse(ResponseEntity.notFound().build());
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> delete(@PathVariable UUID id) {
+                if (dungeonRepository.existsById(id)) {
+                        dungeonRepository.deleteById(id);
+                        return ResponseEntity.noContent().build();
+                }
+                return ResponseEntity.notFound().build();
+        }
+
+        // Existing run logic
+        @PostMapping("/{dungeonId}/run")
+        public ResponseEntity<com.theliems.lokigame.service.dungeon.DungeonService.DungeonRunResult> runDungeon(
+                        @PathVariable UUID dungeonId,
+                        @RequestParam UUID playerId) {
+                return ResponseEntity.ok(dungeonService.runDungeon(playerId, dungeonId));
+        }
 }

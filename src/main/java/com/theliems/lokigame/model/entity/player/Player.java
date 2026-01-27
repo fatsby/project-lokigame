@@ -44,6 +44,10 @@ public class Player implements UserDetails {
     @Builder.Default
     private Long currency = 0L;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Long gold = 0L;
+
     @Embedded
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
@@ -55,7 +59,6 @@ public class Player implements UserDetails {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<InventoryItem> inventoryItems;
-
 
     // --- UserDetails Implementation ---
     @Override

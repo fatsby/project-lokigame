@@ -26,10 +26,6 @@ public class Equipment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private Player owner;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EquipmentType equipmentType;
@@ -42,11 +38,11 @@ public class Equipment {
     @Builder.Default
     private Integer level = 1;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<EquipmentStat> baseStats = new ArrayList<>();
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     private List<EquipmentStat> randomStats = new ArrayList<>();
 
