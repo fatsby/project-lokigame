@@ -22,7 +22,6 @@ public class HeroResponse {
     private HeroGender gender;
     private String firstName;
     private String lastName;
-    private int rarity;
     private WorldResponse originWorld;
     private OriginResponse origin;
     private Integer level;

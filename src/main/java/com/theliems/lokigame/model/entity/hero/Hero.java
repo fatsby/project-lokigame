@@ -45,9 +45,6 @@ public class Hero {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false)
-    private int rarity; // 1-7 Stars
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "worldId")
     private World originWorld;
