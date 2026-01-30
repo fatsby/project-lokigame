@@ -13,6 +13,13 @@ import java.util.UUID;
 public interface HeroRepository extends JpaRepository<Hero, UUID> {
     List<Hero> findByOwner_PlayerId(UUID ownerId);
 
+    /**
+     * Find all heroes for a player with full details for leveling.
+     */
+    default List<Hero> findByPlayerId(UUID playerId) {
+        return findByPlayerIdFull(playerId);
+    }
+
     @Query("""
                 select distinct h from Hero h
                 join fetch h.heroClass

@@ -51,4 +51,18 @@ public class DropTable {
     @Column(nullable = false)
     @Builder.Default
     private Double materialDropChance = 0.5;
+
+    /**
+     * Base XP reward for completing this dungeon
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Long baseXp = 50L;
+
+    /**
+     * XP multiplier based on dungeon difficulty
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Double xpMultiplier = 1.0;
 }

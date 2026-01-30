@@ -51,4 +51,17 @@ public class HeroClass {
     @Column(name = "modifier_value")
     @Builder.Default
     private Map<StatType, Double> statModifiers = new HashMap<>();
+
+    /**
+     * Stat growth per level for this class.
+     * This determines how much each stat increases when a hero levels up.
+     * Format: {"HP": 8.0, "ATK": 2.0} means +8 HP and +2 ATK per level
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "hero_class_stat_growth", joinColumns = @JoinColumn(name = "hero_class_id"))
+    @MapKeyEnumerated(EnumType.STRING)
+    @MapKeyColumn(name = "stat_type")
+    @Column(name = "growth_value")
+    @Builder.Default
+    private Map<StatType, Double> statGrowthPerLevel = new HashMap<>();
 }

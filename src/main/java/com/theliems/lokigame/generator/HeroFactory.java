@@ -18,14 +18,14 @@ public class HeroFactory {
      * Generates a procedurally unique hero.
      * Each hero is guaranteed to be unique through UUID + random seed combination.
      *
-     * @param heroClass  The hero class template
-     * @param origin     The origin template
+     * @param heroClass   The hero class template
+     * @param origin      The origin template
      * @param originWorld The world template
-     * @param randomSeed Random seed for uniqueness
+     * @param randomSeed  Random seed for uniqueness
      * @return A fully generated Hero with unique stats and personality
      */
     public Hero generateHero(HeroClass heroClass, Origin origin, World originWorld, Long randomSeed) {
-        java.util.Random random = new java.util.Random(randomSeed);
+        Random random = new Random(randomSeed);
 
         // Generate unique name
         String firstName = generateFirstName(random);
@@ -38,10 +38,7 @@ public class HeroFactory {
         int star = rollStar(random);
 
         // Generate base stats from class
-        List<HeroStats> stats = generateHeroStats(heroClass, origin, star, random,originWorld);
-
-        // Generate unique personality seed
-        long personalitySeed = random.nextLong();
+        List<HeroStats> stats = generateHeroStats(heroClass, origin, star, random, originWorld);
 
         Hero hero = Hero.builder()
                 .heroClass(heroClass)
@@ -55,7 +52,7 @@ public class HeroFactory {
                 .experience(0L)
                 .randomSeed(randomSeed)
                 .willPower(0.8 + random.nextDouble() * 0.4) // 0.8 to 1.2
-                .expPerSecond(0.001)
+                .expPerSecond(1L)
                 .equipment(new HashMap<>())
                 .stats(stats)
                 .build();
@@ -73,16 +70,23 @@ public class HeroFactory {
         // Weighted star distribution (1-7 stars)
         // Lower stars are more common
         double roll = random.nextDouble();
-        if (roll < 0.50) return 1; // 50% chance
-        if (roll < 0.75) return 2; // 25% chance
-        if (roll < 0.90) return 3; // 15% chance
-        if (roll < 0.97) return 4; // 7% chance
-        if (roll < 0.99) return 5; // 2% chance
-        if (roll < 0.999) return 6; // 0.9% chance
+        if (roll < 0.50)
+            return 1; // 50% chance
+        if (roll < 0.75)
+            return 2; // 25% chance
+        if (roll < 0.90)
+            return 3; // 15% chance
+        if (roll < 0.97)
+            return 4; // 7% chance
+        if (roll < 0.99)
+            return 5; // 2% chance
+        if (roll < 0.999)
+            return 6; // 0.9% chance
         return 7; // 0.1% chance
     }
 
-    private List<HeroStats> generateHeroStats(HeroClass heroClass, Origin origin, int star, java.util.Random random,World world) {
+    private List<HeroStats> generateHeroStats(HeroClass heroClass, Origin origin, int star, java.util.Random random,
+            World world) {
         List<HeroStats> stats = new ArrayList<>();
 
         // Star multiplier (higher star = better stats)
@@ -111,7 +115,6 @@ public class HeroFactory {
             double variance = 0.9 + random.nextDouble() * 0.2; // 0.9 to 1.1
             baseValue *= variance;
 
-
             HeroStats heroStat = HeroStats.builder()
                     .statType(statType)
                     .baseValue(baseValue)
@@ -137,18 +140,14 @@ public class HeroFactory {
 
     private String generateFirstName(java.util.Random random) {
         // Placeholder - in production, use a name generator or database
-        String[] firstNames = {"Aria", "Kael", "Luna", "Thorin", "Zara", "Drake", "Nova", "Rex", "Ivy", "Orion"};
+        String[] firstNames = { "Aria", "Kael", "Luna", "Thorin", "Zara", "Drake", "Nova", "Rex", "Ivy", "Orion" };
         return firstNames[random.nextInt(firstNames.length)];
     }
 
     private String generateLastName(java.util.Random random) {
         // Placeholder - in production, use a name generator or database
-        String[] lastNames = {"Storm", "Shadow", "Flame", "Frost", "Light", "Dark", "Star", "Moon", "Sun", "Void"};
+        String[] lastNames = { "Storm", "Shadow", "Flame", "Frost", "Light", "Dark", "Star", "Moon", "Sun", "Void" };
         return lastNames[random.nextInt(lastNames.length)];
     }
-
-
-
-
 
 }

@@ -7,9 +7,12 @@ import com.theliems.lokigame.model.dto.auth.AuthResponse;
 import com.theliems.lokigame.model.dto.auth.LoginRequest;
 import com.theliems.lokigame.model.dto.auth.RegisterRequest;
 import com.theliems.lokigame.model.dto.auth.TokenPair;
+import com.theliems.lokigame.model.dto.leveling.OfflineProgressionResult;
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.entity.player.Role;
 import com.theliems.lokigame.repository.player.PlayerRepository;
+import com.theliems.lokigame.service.leveling.OfflineProgressionService;
+import com.theliems.lokigame.service.session.SessionTrackingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +34,8 @@ public class AuthService {
         private final JwtTokenProvider tokenProvider;
         private final AuthenticationManager authenticationManager;
         private final ExceptionFactory exceptionFactory;
+        private final SessionTrackingService sessionTrackingService;
+        private final OfflineProgressionService offlineProgressionService;
 
         @Transactional
         public AuthResponse register(RegisterRequest request) {
@@ -52,6 +57,9 @@ public class AuthService {
 
                 player = playerRepository.save(player);
 
+                // Record initial login session
+                sessionTrackingService.recordLogin(player.getPlayerId());
+
                 String accessToken = tokenProvider.generateToken(player.getPlayerId(), player.getUsername(),
                                 player.getRole().name());
                 String refreshToken = tokenProvider.generateRefreshToken(player.getPlayerId(), player.getUsername());
@@ -65,12 +73,25 @@ public class AuthService {
                                 .build();
         }
 
+        @Transactional
         public AuthResponse login(LoginRequest request) {
                 Authentication authentication = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
                 Player player = playerRepository.findByUsername(request.getUsername())
                                 .orElseThrow(() -> exceptionFactory.resourceNotFound("User", request.getUsername()));
+
+                // Process offline progression before recording new login
+                OfflineProgressionResult progressionResult = offlineProgressionService
+                                .processOfflineProgression(player);
+                if (progressionResult.getTotalXpGained() > 0) {
+                        log.info("Player {} earned {} offline XP across {} heroes",
+                                        player.getUsername(), progressionResult.getTotalXpGained(),
+                                        progressionResult.getHeroResults().size());
+                }
+
+                // Record login session
+                sessionTrackingService.recordLogin(player.getPlayerId());
 
                 String accessToken = tokenProvider.generateToken(player.getPlayerId(), player.getUsername(),
                                 player.getRole().name());
@@ -82,6 +103,7 @@ public class AuthService {
                                 .accessToken(accessToken)
                                 .refreshToken(refreshToken)
                                 .tokenType("Bearer")
+                                .offlineProgression(progressionResult)
                                 .build();
         }
 

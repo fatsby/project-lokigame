@@ -82,25 +82,25 @@ public class Hero {
      */
     @Column(nullable = false)
     @Builder.Default
-    private Double expPerSecond = 0.001;
+    private Long expPerSecond = 1L;
 
     /**
      * Stats rolled based on Class + Rarity + World.
      * Stored as JSONB in Postgres for flexibility.
      * Expected keys: health, armour, abilityPower
      */
-//    @Type(JsonBinaryType.class)
-//    @Column(columnDefinition = "jsonb")
-//    private Map<String, Double> stats;
+    // @Type(JsonBinaryType.class)
+    // @Column(columnDefinition = "jsonb")
+    // private Map<String, Double> stats;
 
     /**
      * Visual identifiers for body features (cosmetic only).
      * Stored as JSONB.
      * Expected keys: hair_id, face_id
      */
-//    @Type(JsonBinaryType.class)
-//    @Column(columnDefinition = "jsonb")
-//    private Map<String, String> visuals;
+    // @Type(JsonBinaryType.class)
+    // @Column(columnDefinition = "jsonb")
+    // private Map<String, String> visuals;
 
     /**
      * Active Equipment Loadout.

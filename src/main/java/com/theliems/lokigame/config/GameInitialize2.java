@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 @Slf4j
 public class GameInitialize2 implements CommandLineRunner {
