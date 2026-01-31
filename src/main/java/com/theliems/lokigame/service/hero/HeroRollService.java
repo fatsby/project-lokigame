@@ -10,6 +10,7 @@ import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.EquipmentType;
 import com.theliems.lokigame.model.entity.inventory.InventoryItem; // Added
 import com.theliems.lokigame.model.enums.ItemType; // Added
+import com.theliems.lokigame.model.enums.Rarity;
 import com.theliems.lokigame.repository.equipment.EquipmentRepository;
 import com.theliems.lokigame.repository.inventory.InventoryItemRepository; // Added
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
@@ -87,7 +88,7 @@ public class HeroRollService {
             EquipmentType type = getEquipmentTypeForSlot(slot);
             if (type != null) {
                 // Generate the Equipment definition (rolled stats)
-                Equipment equipment = equipmentGenerator.generateEquipment(type, 1, 1);
+                Equipment equipment = equipmentGenerator.generateEquipment(type, 1, 1, Rarity.COMMON);
                 equipment = equipmentRepository.save(equipment); // Save the equipment definition
 
                 // Create an InventoryItem instance for the player

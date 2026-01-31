@@ -21,8 +21,7 @@ public class EquipmentGenerator {
             Rarity.COMMON, 50.0,
             Rarity.RARE, 30.0,
             Rarity.EPIC, 15.0,
-            Rarity.LEGENDARY, 5.0
-    );
+            Rarity.LEGENDARY, 5.0);
 
     private static final List<StatType> ALL_STAT_TYPES = Arrays.asList(StatType.values());
 
@@ -35,10 +34,25 @@ public class EquipmentGenerator {
      * @return A fully generated Equipment with random rarity, stats, and values
      */
     public Equipment generateEquipment(EquipmentType equipmentType, Integer playerLevel, Integer dungeonLevel) {
+        return generateEquipment(equipmentType, playerLevel, dungeonLevel, null);
+    }
+
+    /**
+     * Generates an equipment piece with optional forced rarity.
+     *
+     * @param equipmentType The type of equipment
+     * @param playerLevel   Player level
+     * @param dungeonLevel  Dungeon level
+     * @param forcedRarity  If not null, forces this rarity. If null, rolls
+     *                      randomly.
+     * @return Generated Equipment
+     */
+    public Equipment generateEquipment(EquipmentType equipmentType, Integer playerLevel, Integer dungeonLevel,
+            Rarity forcedRarity) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        // Determine rarity based on weighted random
-        Rarity rarity = rollRarity(random);
+        // Determine rarity: use forced if provided, else roll
+        Rarity rarity = forcedRarity != null ? forcedRarity : rollRarity(random);
 
         // Calculate effective level (average of player and dungeon level)
         int effectiveLevel = Math.max(1, (playerLevel + dungeonLevel) / 2);
@@ -49,8 +63,7 @@ public class EquipmentGenerator {
         // Generate random stats (varies by rarity)
         int numRandomStats = random.nextInt(
                 rarity.getMinRandomStats(),
-                rarity.getMaxRandomStats() + 1
-        );
+                rarity.getMaxRandomStats() + 1);
         List<EquipmentStat> randomStats = generateRandomStats(numRandomStats, rarity, effectiveLevel, random);
 
         Equipment equipment = Equipment.builder()
@@ -85,7 +98,8 @@ public class EquipmentGenerator {
         return Rarity.COMMON; // Fallback
     }
 
-    private List<EquipmentStat> generateBaseStats(EquipmentType equipmentType, Rarity rarity, int level, ThreadLocalRandom random) {
+    private List<EquipmentStat> generateBaseStats(EquipmentType equipmentType, Rarity rarity, int level,
+            ThreadLocalRandom random) {
         List<EquipmentStat> baseStats = new ArrayList<>();
 
         // Primary stat based on equipment type
@@ -141,7 +155,8 @@ public class EquipmentGenerator {
         };
     }
 
-    private double calculateStatValue(StatType statType, Rarity rarity, int level, ThreadLocalRandom random, boolean isBase) {
+    private double calculateStatValue(StatType statType, Rarity rarity, int level, ThreadLocalRandom random,
+            boolean isBase) {
         // Base value per level
         double baseValuePerLevel = getBaseValuePerLevel(statType);
 
