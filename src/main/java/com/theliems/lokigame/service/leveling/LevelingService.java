@@ -32,7 +32,7 @@ public class LevelingService {
      */
     @Transactional
     public LevelUpResult addExperience(Hero hero, long xpAmount) {
-        int maxLevel = LevelingConstants.getMaxLevel(hero.getRarity());
+        int maxLevel = LevelingConstants.getMaxLevel(hero.getStar());
         boolean atCap = hero.getLevel() >= maxLevel;
 
         // No XP gain if already at cap or no XP to add
@@ -85,7 +85,7 @@ public class LevelingService {
      * Check if a hero can level up (has enough XP and not at rarity cap).
      */
     public boolean canLevelUp(Hero hero) {
-        int maxLevel = LevelingConstants.getMaxLevel(hero.getRarity());
+        int maxLevel = LevelingConstants.getMaxLevel(hero.getStar());
         if (hero.getLevel() >= maxLevel) {
             return false;
         }
@@ -110,6 +110,6 @@ public class LevelingService {
      * Get the maximum level for a hero based on their rarity.
      */
     public int getMaxLevel(Hero hero) {
-        return LevelingConstants.getMaxLevel(hero.getRarity());
+        return LevelingConstants.getMaxLevel(hero.getStar());
     }
 }
