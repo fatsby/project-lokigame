@@ -3,16 +3,13 @@ package com.theliems.lokigame.service.hero;
 import com.theliems.lokigame.generator.EquipmentGenerator;
 import com.theliems.lokigame.generator.HeroFactory;
 import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
-import com.theliems.lokigame.model.entity.equipment.Equipment;
 import com.theliems.lokigame.model.entity.hero.*;
+import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.EquipmentType;
-import com.theliems.lokigame.model.entity.inventory.InventoryItem; // Added
-import com.theliems.lokigame.model.enums.ItemType; // Added
 import com.theliems.lokigame.model.enums.Rarity;
-import com.theliems.lokigame.repository.equipment.EquipmentRepository;
-import com.theliems.lokigame.repository.inventory.InventoryItemRepository; // Added
+import com.theliems.lokigame.repository.inventory.EquipmentItemRepository;
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
 import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
@@ -28,6 +25,9 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Service for rolling (summoning) new heroes.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,11 +41,10 @@ public class HeroRollService {
     private final PlayerRepository playerRepository;
     private final ExceptionFactory exceptionFactory;
     private final EquipmentGenerator equipmentGenerator;
-    private final EquipmentRepository equipmentRepository;
-    private final InventoryItemRepository inventoryItemRepository; // Injected
-    private final HeroService heroService; // Injected
+    private final EquipmentItemRepository equipmentItemRepository;
+    private final HeroService heroService;
 
-    private static final Long HERO_ROLL_COST = 100L; // Cost to roll a hero
+    private static final Long HERO_ROLL_COST = 100L;
 
     @Transactional
     public Hero rollHero(Player player) {
@@ -87,23 +86,12 @@ public class HeroRollService {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             EquipmentType type = getEquipmentTypeForSlot(slot);
             if (type != null) {
-                // Generate the Equipment definition (rolled stats)
-                Equipment equipment = equipmentGenerator.generateEquipment(type, 1, 1, Rarity.COMMON);
-                equipment = equipmentRepository.save(equipment); // Save the equipment definition
+                // Generate EquipmentItem directly (merged entity)
+                EquipmentItem equipmentItem = equipmentGenerator.generateEquipment(
+                        player, type, 1, 1, Rarity.COMMON);
+                equipmentItem = equipmentItemRepository.save(equipmentItem);
 
-                // Create an InventoryItem instance for the player
-                InventoryItem inventoryItem = InventoryItem.builder()
-                        .owner(player)
-                        .itemId(equipment.getId().toString()) // Use Equipment's ID as the item reference
-                        .type(equipment.getEquipmentType().toItemType()) // Map EquipmentType to ItemType
-                        .tier(equipment.getRarity().toItemTier()) // Map Rarity to ItemTier
-                        .metadata(java.util.Map.of("equipmentId", equipment.getId().toString())) // Store reference to
-                                                                                                 // actual Equipment
-                                                                                                 // entity
-                        .build();
-                inventoryItem = inventoryItemRepository.save(inventoryItem);
-
-                hero.getEquipment().put(slot, inventoryItem.getId()); // Store inventoryItemId
+                hero.getEquipment().put(slot, equipmentItem.getId());
             }
         }
         hero = heroRepository.save(hero);
