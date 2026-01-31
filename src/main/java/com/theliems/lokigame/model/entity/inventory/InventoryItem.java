@@ -1,5 +1,6 @@
 package com.theliems.lokigame.model.entity.inventory;
 
+import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.entity.system.AuditMetaData;
 import com.theliems.lokigame.model.enums.ItemTier;
 import com.theliems.lokigame.model.enums.ItemType;
@@ -26,8 +27,9 @@ public class InventoryItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private Player owner;
 
     /**
      * The Reference ID to the static ItemDefinition (in JSON/ItemRegistry).

@@ -1,25 +1,19 @@
 package com.theliems.lokigame.model.dto.auth;
 
+import com.theliems.lokigame.model.dto.leveling.OfflineProgressionResult;
+import lombok.Builder;
 import lombok.Data;
-import java.util.List;
-import java.util.UUID;
 
 @Data
+@Builder
 public class AuthResponse {
-    private String token;
-    private String type = "Bearer";
+    private String accessToken;
     private String refreshToken;
-    private UUID id;
-    private String username;
-    private String email;
-    private List<String> roles;
+    private String tokenType;
 
-    public AuthResponse(String accessToken, String refreshToken, UUID id, String username, String email, List<String> roles) {
-        this.token = accessToken;
-        this.refreshToken = refreshToken;
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.roles = roles;
-    }
+    /**
+     * Offline progression result (XP gained while offline).
+     * Only populated on login, null on register.
+     */
+    private OfflineProgressionResult offlineProgression;
 }

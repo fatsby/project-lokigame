@@ -17,6 +17,6 @@ public interface PlayerRepository extends JpaRepository<Player, UUID> {
     Boolean existsByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT p FROM Player p WHERE p.id = :id")
+    @Query("SELECT p FROM Player p WHERE p.playerId = :id")
     Optional<Player> findByIdWithLock(UUID id);
 }

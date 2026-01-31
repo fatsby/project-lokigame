@@ -30,6 +30,7 @@ services:
       - POSTGRES_DB=lokigame
       - POSTGRES_USER=loki
       - POSTGRES_PASSWORD=SecureP@ssword123
+      - TZ=UTC # Explicitly set timezone to UTC
     ports:
       - "5432:5432" # Exposed for local tools (DBeaver/pgAdmin)
     volumes:

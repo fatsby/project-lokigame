@@ -1,43 +1,58 @@
 package com.theliems.lokigame.controller.player;
 
-import com.theliems.lokigame.model.dto.api.ApiResponse;
-import com.theliems.lokigame.model.dto.player.PlayerResponseDTO;
-import com.theliems.lokigame.service.player.PlayerServiceInterface;
-import lombok.AccessLevel;
+import com.theliems.lokigame.mapper.PlayerMapper;
+import com.theliems.lokigame.model.dto.player.PlayerRequest;
+import com.theliems.lokigame.model.dto.player.PlayerResponse;
+
+import com.theliems.lokigame.repository.player.PlayerRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/player")
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class PlayerController {
-    PlayerServiceInterface playerService;
-    private final RestClient.Builder builder;
+
+    private final PlayerRepository playerRepository;
+    private final PlayerMapper playerMapper;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PlayerResponseDTO>> getMe() {
-        return ResponseEntity.ok(ApiResponse.<PlayerResponseDTO>builder()
-                .message("Successfully retrieved player's data")
-                .result(playerService.getMe())
-                .build()
-        );
+    public ResponseEntity<List<PlayerResponse>> getAll() {
+        return ResponseEntity.ok(playerRepository.findAll().stream()
+                .map(playerMapper::toDto)
+                .collect(Collectors.toList()));
     }
 
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> getAdmin() {
-        return ResponseEntity.ok(ApiResponse.<String>builder()
-                .message("Success")
-                .result("Hello Admin")
-                .build()
-        );
+    @GetMapping("/{id}")
+    public ResponseEntity<PlayerResponse> getById(@PathVariable UUID id) {
+        return playerRepository.findById(id)
+                .map(playerMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PlayerResponse> update(@PathVariable UUID id, @RequestBody PlayerRequest request) {
+        return playerRepository.findById(id)
+                .map(entity -> {
+                    playerMapper.updateEntityFromDto(request, entity);
+                    entity = playerRepository.save(entity);
+                    return ResponseEntity.ok(playerMapper.toDto(entity));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        if (playerRepository.existsById(id)) {
+            playerRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
