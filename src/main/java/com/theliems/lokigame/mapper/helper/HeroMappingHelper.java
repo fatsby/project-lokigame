@@ -70,6 +70,7 @@ public class HeroMappingHelper {
                         }
                     }
 
+                    // TODO: Map this to actual custom name of the equipment
                     String name = (equipmentDef != null) ? equipmentDef.getEquipmentType().name() : "Unknown Item";
 
                     Map<StatType, Double> stats = new HashMap<>();
@@ -86,7 +87,7 @@ public class HeroMappingHelper {
                             .inventoryItemId(item.getId())
                             .equipmentId(equipmentDef != null ? equipmentDef.getId() : null)
                             .name(name)
-                            .type(item.getType() == ItemType.EQUIPMENT
+                            .type(item.getType().isEquipment()
                                     ? (equipmentDef != null ? equipmentDef.getEquipmentType() : null)
                                     : null)
                             .rarity(mapRarity(item.getTier()))
