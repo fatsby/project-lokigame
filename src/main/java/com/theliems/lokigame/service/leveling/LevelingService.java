@@ -42,7 +42,7 @@ public class LevelingService {
                     hero.getFirstName() + " " + hero.getLastName(),
                     hero.getLevel(),
                     hero.getExperience(),
-                    xpCalculator.calculateXpForNextLevel(hero.getLevel()),
+                    xpCalculator.calculateXpForNextLevel(hero),
                     atCap);
         }
 
@@ -75,7 +75,7 @@ public class LevelingService {
                 .newLevel(hero.getLevel())
                 .levelsGained(levelsGained)
                 .currentXp(hero.getExperience())
-                .xpToNextLevel(xpCalculator.calculateXpForNextLevel(hero.getLevel()))
+                .xpToNextLevel(xpCalculator.calculateXpForNextLevel(hero))
                 .xpGained(xpAmount)
                 .atLevelCap(atCap)
                 .build();
@@ -90,7 +90,7 @@ public class LevelingService {
             return false;
         }
 
-        long xpRequired = xpCalculator.calculateXpForNextLevel(hero.getLevel());
+        long xpRequired = xpCalculator.calculateXpForNextLevel(hero);
         return hero.getExperience() >= xpRequired;
     }
 
@@ -98,7 +98,7 @@ public class LevelingService {
      * Level up a hero once (assumes canLevelUp has been checked).
      */
     private void levelUp(Hero hero) {
-        long xpRequired = xpCalculator.calculateXpForNextLevel(hero.getLevel());
+        long xpRequired = xpCalculator.calculateXpForNextLevel(hero);
         hero.setExperience(hero.getExperience() - xpRequired);
         hero.setLevel(hero.getLevel() + 1);
         statGrowthService.applyLevelUpStats(hero);

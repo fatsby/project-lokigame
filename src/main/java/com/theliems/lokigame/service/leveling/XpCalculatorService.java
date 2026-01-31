@@ -19,26 +19,33 @@ public class XpCalculatorService {
      * Calculate XP required to reach the next level.
      * Formula: XP_BASE * level^XP_EXPONENT
      *
-     * @param currentLevel Current hero level
+     * @param hero The hero to calculate required XP
      * @return XP required for next level
      */
-    public long calculateXpForNextLevel(int currentLevel) {
-        return (long) (LevelingConstants.XP_BASE * Math.pow(currentLevel, LevelingConstants.XP_EXPONENT));
+    public long calculateXpForNextLevel(Hero hero) {
+        int level = hero.getLevel();
+        int star = hero.getStar();
+
+        double multiplier = LevelingConstants.STAR_XP_MULTIPLIERS.getOrDefault(star, 1.0);
+
+        double rawXp = LevelingConstants.XP_BASE * Math.pow(level, LevelingConstants.XP_EXPONENT);
+
+        return (long) (rawXp * multiplier);
     }
 
-    /**
-     * Calculate total XP required from level 1 to target level.
-     *
-     * @param targetLevel Target level
-     * @return Total cumulative XP required
-     */
-    public long calculateTotalXpForLevel(int targetLevel) {
-        long totalXp = 0;
-        for (int level = 1; level < targetLevel; level++) {
-            totalXp += calculateXpForNextLevel(level);
-        }
-        return totalXp;
-    }
+//    /**
+//     * Calculate total XP required from level 1 to target level.
+//     *
+//     * @param targetLevel Target level
+//     * @return Total cumulative XP required
+//     */
+//    public long calculateTotalXpForLevel(int targetLevel) {
+//        long totalXp = 0;
+//        for (int level = 1; level < targetLevel; level++) {
+//            totalXp += calculateXpForNextLevel(level);
+//        }
+//        return totalXp;
+//    }
 
     /**
      * Calculate XP gained from offline time.

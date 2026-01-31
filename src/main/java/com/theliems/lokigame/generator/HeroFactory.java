@@ -51,7 +51,7 @@ public class HeroFactory {
                 .level(1)
                 .experience(0L)
                 .randomSeed(randomSeed)
-                .willPower(0.8 + random.nextDouble() * 0.4) // 0.8 to 1.2
+                .willPower(1.0 + random.nextDouble()) // 1.0 to 2.0
                 .expPerSecond(1L)
                 .equipment(new HashMap<>())
                 .stats(stats)

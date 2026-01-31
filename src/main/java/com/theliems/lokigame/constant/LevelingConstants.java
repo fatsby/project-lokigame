@@ -41,6 +41,19 @@ public final class LevelingConstants {
             7, 140);
 
     /**
+     * XP to reach next level Multiplier for each Hero Rarity
+     */
+    public static final Map<Integer, Double> STAR_XP_MULTIPLIERS = Map.of(
+            1, 10.0,
+            2, 20.0,
+            3, 50.0,
+            4, 150.0,
+            5, 250.0,
+            6, 375.0,
+            7, 600.0
+    );
+
+    /**
      * Get max level for a given rarity. Returns 20 as default.
      */
     public static int getMaxLevel(int rarity) {
