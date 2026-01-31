@@ -218,10 +218,10 @@ public class GameDataInitialize implements CommandLineRunner {
         private void initializeDungeons() {
                 // Dungeon 1: Goblin Cave
                 Map<StatType, Double> goblinStats = new HashMap<>();
-                goblinStats.put(StatType.HP, 200.0);
-                goblinStats.put(StatType.ATK, 30.0);
-                goblinStats.put(StatType.DEF, 10.0);
-                goblinStats.put(StatType.SPEED, 50.0);
+                goblinStats.put(StatType.HP, 2000.0);
+                goblinStats.put(StatType.ATK, 150.0);
+                goblinStats.put(StatType.DEF, 100.0);
+                goblinStats.put(StatType.SPEED, 150.0);
                 goblinStats.put(StatType.CRIT_RATE, 0.05);
                 goblinStats.put(StatType.CRIT_DAMAGE, 1.5);
 
@@ -255,10 +255,10 @@ public class GameDataInitialize implements CommandLineRunner {
 
                 // Dungeon 2: Orc Stronghold
                 Map<StatType, Double> orcStats = new HashMap<>();
-                orcStats.put(StatType.HP, 500.0);
-                orcStats.put(StatType.ATK, 60.0);
-                orcStats.put(StatType.DEF, 30.0);
-                orcStats.put(StatType.SPEED, 40.0);
+                orcStats.put(StatType.HP, 5000.0);
+                orcStats.put(StatType.ATK, 600.0);
+                orcStats.put(StatType.DEF, 100.0);
+                orcStats.put(StatType.SPEED, 150.0);
                 orcStats.put(StatType.CRIT_RATE, 0.1);
                 orcStats.put(StatType.CRIT_DAMAGE, 1.8);
 
