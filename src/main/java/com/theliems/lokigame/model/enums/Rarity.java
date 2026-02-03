@@ -1,20 +1,22 @@
 package com.theliems.lokigame.model.enums;
 
+/**
+ * Represents the rarity tier of items.
+ * Higher rarity = more random stats and better multipliers.
+ */
 public enum Rarity {
-    COMMON(1, 2, ItemTier.NORMAL),
-    RARE(2, 3, ItemTier.RARE),
-    EPIC(3, 4, ItemTier.EPIC),
-    LEGENDARY(4, 6, ItemTier.LEGENDARY),
-    GODSENT(0, 0, ItemTier.GODSENT); // Godsent items have fixed stats, so min/max random stats are 0
+    COMMON(1, 2),
+    RARE(2, 3),
+    EPIC(3, 4),
+    LEGENDARY(4, 6),
+    GODSENT(0, 0); // Godsent items have fixed stats
 
     private final int minRandomStats;
     private final int maxRandomStats;
-    private final ItemTier itemTier;
 
-    Rarity(int minRandomStats, int maxRandomStats, ItemTier itemTier) {
+    Rarity(int minRandomStats, int maxRandomStats) {
         this.minRandomStats = minRandomStats;
         this.maxRandomStats = maxRandomStats;
-        this.itemTier = itemTier;
     }
 
     public int getMinRandomStats() {
@@ -23,9 +25,5 @@ public enum Rarity {
 
     public int getMaxRandomStats() {
         return maxRandomStats;
-    }
-
-    public ItemTier toItemTier() {
-        return this.itemTier;
     }
 }

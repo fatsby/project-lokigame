@@ -2,8 +2,7 @@ package com.theliems.lokigame.model.entity.inventory;
 
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.entity.system.AuditMetaData;
-import com.theliems.lokigame.model.enums.ItemTier;
-import com.theliems.lokigame.model.enums.ItemType;
+import com.theliems.lokigame.model.enums.Rarity;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,15 +12,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Abstract base class for all inventory items using JOINED inheritance.
+ * Each subclass (EquipmentItem, ConsumableItem, etc.) gets its own table.
+ */
 @Entity
 @Table(name = "inventory_items")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EntityListeners(AuditingEntityListener.class)
-public class InventoryItem {
+public abstract class InventoryItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,25 +35,25 @@ public class InventoryItem {
     private Player owner;
 
     /**
-     * The Reference ID to the static ItemDefinition (in JSON/ItemRegistry).
-     * This acts as a "Logical Foreign Key" to the in-memory game data.
+     * Rarity applies to all inventory items (equipment, consumables, etc.)
      */
-    @Column(name = "item_id", nullable = false)
-    private String itemId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ItemType type;
+    private Rarity rarity;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ItemTier tier;
-
+    /**
+     * Optional metadata for future extensibility.
+     */
     @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb", nullable = true)
     private Map<String, Object> metadata;
 
     @Embedded
-    @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();
+
+    /**
+     * Returns a display-friendly name for the item.
+     * Each subclass implements based on its specific type.
+     */
+    public abstract String getDisplayName();
 }

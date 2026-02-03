@@ -1,9 +1,7 @@
 package com.theliems.lokigame.controller.inventory;
 
 import com.theliems.lokigame.mapper.InventoryItemMapper;
-import com.theliems.lokigame.model.dto.inventory.InventoryItemRequest;
 import com.theliems.lokigame.model.dto.inventory.InventoryItemResponse;
-import com.theliems.lokigame.model.entity.inventory.InventoryItem;
 import com.theliems.lokigame.repository.inventory.InventoryItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +11,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * REST controller for inventory items.
+ * Inventory items are created procedurally (via HeroRollService,
+ * DungeonService, etc.)
+ * so this controller is primarily for read operations.
+ */
 @RestController
 @RequestMapping("/api/inventory-item")
 @RequiredArgsConstructor
@@ -33,25 +37,6 @@ public class InventoryItemController {
         return inventoryItemRepository.findById(id)
                 .map(inventoryItemMapper::toDto)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<InventoryItemResponse> create(@RequestBody InventoryItemRequest request) {
-        InventoryItem entity = inventoryItemMapper.toEntity(request);
-        entity = inventoryItemRepository.save(entity);
-        return ResponseEntity.ok(inventoryItemMapper.toDto(entity));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<InventoryItemResponse> update(@PathVariable UUID id,
-            @RequestBody InventoryItemRequest request) {
-        return inventoryItemRepository.findById(id)
-                .map(entity -> {
-                    inventoryItemMapper.updateEntityFromDto(request, entity);
-                    entity = inventoryItemRepository.save(entity);
-                    return ResponseEntity.ok(inventoryItemMapper.toDto(entity));
-                })
                 .orElse(ResponseEntity.notFound().build());
     }
 

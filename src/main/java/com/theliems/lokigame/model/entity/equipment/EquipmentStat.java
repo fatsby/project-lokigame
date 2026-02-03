@@ -1,11 +1,17 @@
 package com.theliems.lokigame.model.entity.equipment;
 
+import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
 import com.theliems.lokigame.model.enums.StatType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
 
+/**
+ * Represents a single stat on an equipment item.
+ * Can be either a base stat (always present) or a random stat (varies by
+ * rarity).
+ */
 @Entity
 @Table(name = "equipment_stats")
 @Getter
@@ -20,8 +26,8 @@ public class EquipmentStat {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "equipment_id", nullable = false)
-    private Equipment equipment;
+    @JoinColumn(name = "equipment_item_id", nullable = false)
+    private EquipmentItem equipmentItem;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -32,5 +38,5 @@ public class EquipmentStat {
 
     @Column(nullable = false)
     @Builder.Default
-    private Boolean isBaseStat = true; // true for baseStats, false for randomStats
+    private Boolean isBaseStat = true;
 }

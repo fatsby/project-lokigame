@@ -1,7 +1,8 @@
 package com.theliems.lokigame.generator;
 
-import com.theliems.lokigame.model.entity.equipment.Equipment;
 import com.theliems.lokigame.model.entity.equipment.EquipmentStat;
+import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
+import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.enums.EquipmentType;
 import com.theliems.lokigame.model.enums.Rarity;
 import com.theliems.lokigame.model.enums.StatType;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Generates procedurally unique equipment items with random stats.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -28,26 +32,30 @@ public class EquipmentGenerator {
     /**
      * Generates a procedurally unique equipment piece.
      *
+     * @param owner         The player who will own this equipment
      * @param equipmentType The type of equipment to generate
      * @param playerLevel   Player level for scaling
      * @param dungeonLevel  Dungeon level for scaling
-     * @return A fully generated Equipment with random rarity, stats, and values
+     * @return A fully generated EquipmentItem with random rarity, stats, and values
      */
-    public Equipment generateEquipment(EquipmentType equipmentType, Integer playerLevel, Integer dungeonLevel) {
-        return generateEquipment(equipmentType, playerLevel, dungeonLevel, null);
+    public EquipmentItem generateEquipment(Player owner, EquipmentType equipmentType,
+            Integer playerLevel, Integer dungeonLevel) {
+        return generateEquipment(owner, equipmentType, playerLevel, dungeonLevel, null);
     }
 
     /**
      * Generates an equipment piece with optional forced rarity.
      *
+     * @param owner         The player who will own this equipment
      * @param equipmentType The type of equipment
      * @param playerLevel   Player level
      * @param dungeonLevel  Dungeon level
      * @param forcedRarity  If not null, forces this rarity. If null, rolls
      *                      randomly.
-     * @return Generated Equipment
+     * @return Generated EquipmentItem
      */
-    public Equipment generateEquipment(EquipmentType equipmentType, Integer playerLevel, Integer dungeonLevel,
+    public EquipmentItem generateEquipment(Player owner, EquipmentType equipmentType,
+            Integer playerLevel, Integer dungeonLevel,
             Rarity forcedRarity) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -57,31 +65,24 @@ public class EquipmentGenerator {
         // Calculate effective level (average of player and dungeon level)
         int effectiveLevel = Math.max(1, (playerLevel + dungeonLevel) / 2);
 
+        // Create EquipmentItem
+        EquipmentItem equipmentItem = new EquipmentItem(owner, equipmentType, rarity, effectiveLevel);
+
         // Generate base stats (always present)
         List<EquipmentStat> baseStats = generateBaseStats(equipmentType, rarity, effectiveLevel, random);
+        baseStats.forEach(equipmentItem::addBaseStat);
 
         // Generate random stats (varies by rarity)
         int numRandomStats = random.nextInt(
                 rarity.getMinRandomStats(),
                 rarity.getMaxRandomStats() + 1);
         List<EquipmentStat> randomStats = generateRandomStats(numRandomStats, rarity, effectiveLevel, random);
-
-        Equipment equipment = Equipment.builder()
-                .equipmentType(equipmentType)
-                .rarity(rarity)
-                .level(effectiveLevel)
-                .baseStats(baseStats)
-                .randomStats(randomStats)
-                .build();
-
-        // Set bidirectional relationships
-        baseStats.forEach(stat -> stat.setEquipment(equipment));
-        randomStats.forEach(stat -> stat.setEquipment(equipment));
+        randomStats.forEach(equipmentItem::addRandomStat);
 
         log.debug("Generated {} equipment: rarity={}, level={}, baseStats={}, randomStats={}",
                 equipmentType, rarity, effectiveLevel, baseStats.size(), randomStats.size());
 
-        return equipment;
+        return equipmentItem;
     }
 
     private Rarity rollRarity(ThreadLocalRandom random) {
@@ -191,7 +192,7 @@ public class EquipmentGenerator {
             case RARE -> 1.5;
             case EPIC -> 2.5;
             case LEGENDARY -> 4.0;
-            case GODSENT -> 5.0; // Added case for GODSENT rarity
+            case GODSENT -> 5.0;
         };
     }
 }
