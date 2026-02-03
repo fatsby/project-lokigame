@@ -2,6 +2,7 @@ package com.theliems.lokigame.model.dto.hero;
 
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.HeroGender;
+import com.theliems.lokigame.model.enums.StatType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,8 +30,8 @@ public class HeroResponse {
     private Long experience;
     private Double willPower;
     private Double expPerSecond;
-    private java.util.Map<com.theliems.lokigame.model.enums.StatType, Double> baseStats;
-    private java.util.Map<com.theliems.lokigame.model.enums.StatType, Double> finalStats;
+    private java.util.Map<StatType, Double> baseStats;
+    private java.util.Map<StatType, Double> finalStats;
     private Map<EquipmentSlot, HeroEquipmentResponse> equipment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -17,7 +17,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class HeroEquipmentResponse {
     private UUID inventoryItemId;
-    private UUID equipmentId; // The underlying instance ID
     private String name; // Name from metadata or equipment lookup?
     private EquipmentType type;
     private Rarity rarity;

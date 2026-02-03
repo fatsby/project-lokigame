@@ -2,7 +2,6 @@ package com.theliems.lokigame.mapper.helper;
 
 import com.theliems.lokigame.model.dto.hero.HeroEquipmentResponse;
 import com.theliems.lokigame.model.entity.hero.HeroStats;
-import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
 import com.theliems.lokigame.model.enums.EquipmentSlot;
 import com.theliems.lokigame.model.enums.StatType;
 import com.theliems.lokigame.repository.inventory.EquipmentItemRepository;
@@ -71,7 +70,6 @@ public class HeroMappingHelper {
 
                     return HeroEquipmentResponse.builder()
                             .inventoryItemId(item.getId())
-                            .equipmentId(item.getId()) // Same as inventoryItemId now
                             .name(item.getDisplayName())
                             .type(item.getEquipmentType())
                             .rarity(item.getRarity())
