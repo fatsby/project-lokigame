@@ -32,9 +32,11 @@ public class EquipmentItem extends InventoryItem {
     private Integer level = 1;
 
     @OneToMany(mappedBy = "equipmentItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @org.hibernate.annotations.SQLRestriction("is_base_stat = true")
     private List<EquipmentStat> baseStats = new ArrayList<>();
 
     @OneToMany(mappedBy = "equipmentItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @org.hibernate.annotations.SQLRestriction("is_base_stat = false")
     private List<EquipmentStat> randomStats = new ArrayList<>();
 
     /**
