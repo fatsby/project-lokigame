@@ -10,8 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "heroes")
@@ -112,14 +111,14 @@ public class Hero {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @Builder.Default
-    private Map<EquipmentSlot, UUID> equipment = new java.util.HashMap<>();
+    private Map<EquipmentSlot, UUID> equipment = new HashMap<>();
 
     /**
      * Hero stats - one per StatType
      */
     @OneToMany(mappedBy = "hero", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private java.util.List<HeroStats> stats = new java.util.ArrayList<>();
+    private List<HeroStats> stats = new ArrayList<>();
 
     /**
      * Random seed for uniqueness - ensures each hero is procedurally unique

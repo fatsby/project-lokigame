@@ -7,6 +7,7 @@ import com.theliems.lokigame.model.entity.hero.Origin;
 import com.theliems.lokigame.repository.hero.OriginRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/origin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class OriginController {
 
     private final OriginRepository originRepository;

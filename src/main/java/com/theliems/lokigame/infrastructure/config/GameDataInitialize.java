@@ -6,11 +6,14 @@ import com.theliems.lokigame.model.entity.dungeon.Monster;
 import com.theliems.lokigame.model.entity.hero.HeroClass;
 import com.theliems.lokigame.model.entity.hero.Origin;
 import com.theliems.lokigame.model.entity.hero.World;
+import com.theliems.lokigame.model.entity.name.Name;
+import com.theliems.lokigame.model.enums.NameType;
 import com.theliems.lokigame.model.enums.StatType;
 import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
 import com.theliems.lokigame.repository.hero.WorldRepository;
+import com.theliems.lokigame.repository.system.NameRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -29,6 +32,7 @@ public class GameDataInitialize implements CommandLineRunner {
         private final OriginRepository originRepository;
         private final WorldRepository worldRepository;
         private final DungeonRepository dungeonRepository;
+        private final NameRepository nameRepository;
 
         @Transactional
         public void initializeGameData() {
@@ -43,6 +47,9 @@ public class GameDataInitialize implements CommandLineRunner {
                 }
                 if (dungeonRepository.count() == 0) {
                         initializeDungeons();
+                }
+                if (nameRepository.count() == 0) {
+                        initializeNames();
                 }
                 log.info("Game data initialization completed");
         }
@@ -291,6 +298,44 @@ public class GameDataInitialize implements CommandLineRunner {
                 dungeonRepository.save(orcStronghold);
 
                 log.info("Initialized {} dungeons", dungeonRepository.count());
+        }
+
+        private void initializeNames() {
+                // Female Names
+                String[] femaleNames = { "Aria", "Luna", "Zara", "Nova", "Ivy" };
+                for (String name : femaleNames) {
+                        nameRepository.save(Name.builder().name(name).type(NameType.FEMALE_HERO_NAME).build());
+                }
+
+                // Male Names
+                String[] maleNames = { "Kael", "Thorin", "Drake", "Rex", "Orion" };
+                for (String name : maleNames) {
+                        nameRepository.save(Name.builder().name(name).type(NameType.MALE_HERO_NAME).build());
+                }
+
+                // Last Names
+                String[] lastNames = { "Thatcher", "Blackwood", "Beaumont", "Sterling",
+                        "Hawthorne", "Garrick", "Barlow", "Miller",
+                        "Valerius", "Crowe", "Hardy", "Vance", "Barlow", "Mordecai", "Pendleton", "Davenport", "Ridley",
+                        "Stallard", "Granger"};
+                for (String name : lastNames) {
+                        nameRepository.save(Name.builder().name(name).type(NameType.HERO_LASTNAME).build());
+                }
+
+                // Godsent Custom Equipment Names
+                String[] godsentEquipmentNames = { "King Arthur's", "Asgardian Glory", "Hale's Own"};
+                for (String name : godsentEquipmentNames) {
+                        nameRepository.save(Name.builder().name(name).type(NameType.EQUIPMENT_GODSENT).build());
+                }
+
+                String[] equipmentNames = { "Cursed", "Crooked", "Hallowed", "Seraphic", "Primordial",
+                        "Malevolent", "Abyssal", "Blighted",
+                        "Ethereal", "Sanctified"};
+                for (String name : equipmentNames) {
+                        nameRepository.save(Name.builder().name(name).type(NameType.EQUIPMENT_GODSENT).build());
+                }
+
+                log.info("Initialized {} names", nameRepository.count());
         }
 
         @Override

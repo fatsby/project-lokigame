@@ -7,6 +7,7 @@ import com.theliems.lokigame.model.dto.player.PlayerResponse;
 import com.theliems.lokigame.repository.player.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         if (playerRepository.existsById(id)) {
             playerRepository.deleteById(id);
