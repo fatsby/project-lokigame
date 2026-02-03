@@ -8,6 +8,7 @@ import com.theliems.lokigame.service.hero.HeroService;
 import com.theliems.lokigame.service.player.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,6 +51,7 @@ public class HeroController {
         }
 
         @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> delete(@PathVariable UUID id) {
                 heroService.deleteHero(id);
                 return ResponseEntity.noContent().build();

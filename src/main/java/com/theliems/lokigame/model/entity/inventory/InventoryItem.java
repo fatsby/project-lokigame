@@ -41,19 +41,23 @@ public abstract class InventoryItem {
     @Column(nullable = false)
     private Rarity rarity;
 
-    /**
-     * Optional metadata for future extensibility.
-     */
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb", nullable = true)
     private Map<String, Object> metadata;
+
+    @Column(name = "item_name", length = 150)
+    private String itemName;
 
     @Embedded
     private AuditMetaData auditMetaData = new AuditMetaData();
 
     /**
      * Returns a display-friendly name for the item.
-     * Each subclass implements based on its specific type.
+     * Uses itemName if present, otherwise falls back to subclass implementation.
      */
-    public abstract String getDisplayName();
+    public String getDisplayName() {
+        return itemName != null ? itemName : computeDisplayName();
+    }
+
+    protected abstract String computeDisplayName();
 }

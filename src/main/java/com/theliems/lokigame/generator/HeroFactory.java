@@ -3,6 +3,7 @@ package com.theliems.lokigame.generator;
 import com.theliems.lokigame.model.entity.hero.*;
 import com.theliems.lokigame.model.enums.HeroGender;
 import com.theliems.lokigame.model.enums.StatType;
+import com.theliems.lokigame.service.name.NameProviderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class HeroFactory {
+
+    private final NameProviderService nameProviderService;
 
     /**
      * Generates a procedurally unique hero.
@@ -27,12 +30,12 @@ public class HeroFactory {
     public Hero generateHero(HeroClass heroClass, Origin origin, World originWorld, Long randomSeed) {
         Random random = new Random(randomSeed);
 
-        // Generate unique name
-        String firstName = generateFirstName(random);
-        String lastName = generateLastName(random);
-
-        // Generate gender
+        // Generate gender first to support gender-aware naming
         HeroGender gender = random.nextBoolean() ? HeroGender.MALE : HeroGender.FEMALE;
+
+        // Generate unique name using provider
+        String firstName = nameProviderService.getRandomFirstName(gender, random);
+        String lastName = nameProviderService.getRandomLastName(random);
 
         // Roll rarity/star (1-7 stars)
         int star = rollStar(random);
@@ -137,17 +140,4 @@ public class HeroFactory {
             case SPEED -> 50.0;
         };
     }
-
-    private String generateFirstName(java.util.Random random) {
-        // Placeholder - in production, use a name generator or database
-        String[] firstNames = { "Aria", "Kael", "Luna", "Thorin", "Zara", "Drake", "Nova", "Rex", "Ivy", "Orion" };
-        return firstNames[random.nextInt(firstNames.length)];
-    }
-
-    private String generateLastName(java.util.Random random) {
-        // Placeholder - in production, use a name generator or database
-        String[] lastNames = { "Storm", "Shadow", "Flame", "Frost", "Light", "Dark", "Star", "Moon", "Sun", "Void" };
-        return lastNames[random.nextInt(lastNames.length)];
-    }
-
 }

@@ -7,6 +7,7 @@ import com.theliems.lokigame.model.entity.dungeon.Dungeon;
 import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class DungeonController {
         }
 
         @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<DungeonResponse> create(@RequestBody DungeonRequest request) {
                 Dungeon entity = dungeonMapper.toEntity(request);
                 entity = dungeonRepository.save(entity);
@@ -45,6 +47,7 @@ public class DungeonController {
         }
 
         @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<DungeonResponse> update(@PathVariable UUID id, @RequestBody DungeonRequest request) {
                 return dungeonRepository.findById(id)
                                 .map(entity -> {
@@ -56,6 +59,7 @@ public class DungeonController {
         }
 
         @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> delete(@PathVariable UUID id) {
                 if (dungeonRepository.existsById(id)) {
                         dungeonRepository.deleteById(id);

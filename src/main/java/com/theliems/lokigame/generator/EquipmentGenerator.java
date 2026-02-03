@@ -6,6 +6,7 @@ import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.model.enums.EquipmentType;
 import com.theliems.lokigame.model.enums.Rarity;
 import com.theliems.lokigame.model.enums.StatType;
+import com.theliems.lokigame.service.name.NameProviderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 @Slf4j
 public class EquipmentGenerator {
+
+    private final NameProviderService nameProviderService;
 
     private static final Map<Rarity, Double> RARITY_WEIGHTS = Map.of(
             Rarity.COMMON, 50.0,
@@ -65,8 +68,12 @@ public class EquipmentGenerator {
         // Calculate effective level (average of player and dungeon level)
         int effectiveLevel = Math.max(1, (playerLevel + dungeonLevel) / 2);
 
+        // Generate procedural item name: "<Prefix> <EquipmentType>"
+        String prefix = nameProviderService.getRandomEquipmentPrefix(random);
+        String itemName = prefix + " " + formatEquipmentType(equipmentType);
+
         // Create EquipmentItem
-        EquipmentItem equipmentItem = new EquipmentItem(owner, equipmentType, rarity, effectiveLevel);
+        EquipmentItem equipmentItem = new EquipmentItem(owner, equipmentType, rarity, effectiveLevel, itemName);
 
         // Generate base stats (always present)
         List<EquipmentStat> baseStats = generateBaseStats(equipmentType, rarity, effectiveLevel, random);
@@ -194,5 +201,10 @@ public class EquipmentGenerator {
             case LEGENDARY -> 4.0;
             case GODSENT -> 5.0;
         };
+    }
+
+    private String formatEquipmentType(EquipmentType type) {
+        String raw = type.name();
+        return raw.charAt(0) + raw.substring(1).toLowerCase();
     }
 }

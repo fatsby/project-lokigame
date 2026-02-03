@@ -7,6 +7,7 @@ import com.theliems.lokigame.model.entity.dungeon.Monster;
 import com.theliems.lokigame.repository.dungeon.MonsterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/monster")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class MonsterController {
 
     private final MonsterRepository monsterRepository;
