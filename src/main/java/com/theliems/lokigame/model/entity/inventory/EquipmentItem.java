@@ -40,15 +40,16 @@ public class EquipmentItem extends InventoryItem {
     /**
      * Full constructor for programmatic creation.
      */
-    public EquipmentItem(Player owner, EquipmentType equipmentType, Rarity rarity, Integer level) {
+    public EquipmentItem(Player owner, EquipmentType equipmentType, Rarity rarity, Integer level, String itemName) {
         this.setOwner(owner);
         this.setRarity(rarity);
+        this.setItemName(itemName);
         this.equipmentType = equipmentType;
         this.level = level;
     }
 
     @Override
-    public String getDisplayName() {
+    protected String computeDisplayName() {
         return getRarity().name() + " " + equipmentType.name();
     }
 

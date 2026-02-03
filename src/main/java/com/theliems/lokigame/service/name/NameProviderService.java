@@ -12,4 +12,6 @@ public interface NameProviderService {
     String getRandomFirstName(HeroGender gender, Random random);
 
     String getRandomLastName(Random random);
+
+    String getRandomEquipmentPrefix(Random random);
 }

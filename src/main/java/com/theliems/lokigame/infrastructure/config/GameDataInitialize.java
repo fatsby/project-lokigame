@@ -315,24 +315,25 @@ public class GameDataInitialize implements CommandLineRunner {
 
                 // Last Names
                 String[] lastNames = { "Thatcher", "Blackwood", "Beaumont", "Sterling",
-                        "Hawthorne", "Garrick", "Barlow", "Miller",
-                        "Valerius", "Crowe", "Hardy", "Vance", "Barlow", "Mordecai", "Pendleton", "Davenport", "Ridley",
-                        "Stallard", "Granger"};
+                                "Hawthorne", "Garrick", "Barlow", "Miller",
+                                "Valerius", "Crowe", "Hardy", "Vance", "Barlow", "Mordecai", "Pendleton", "Davenport",
+                                "Ridley",
+                                "Stallard", "Granger" };
                 for (String name : lastNames) {
                         nameRepository.save(Name.builder().name(name).type(NameType.HERO_LASTNAME).build());
                 }
 
                 // Godsent Custom Equipment Names
-                String[] godsentEquipmentNames = { "King Arthur's", "Asgardian Glory", "Hale's Own"};
+                String[] godsentEquipmentNames = { "King Arthur's", "Asgardian Glory", "Hale's Own" };
                 for (String name : godsentEquipmentNames) {
                         nameRepository.save(Name.builder().name(name).type(NameType.EQUIPMENT_GODSENT).build());
                 }
 
                 String[] equipmentNames = { "Cursed", "Crooked", "Hallowed", "Seraphic", "Primordial",
-                        "Malevolent", "Abyssal", "Blighted",
-                        "Ethereal", "Sanctified"};
+                                "Malevolent", "Abyssal", "Blighted",
+                                "Ethereal", "Sanctified" };
                 for (String name : equipmentNames) {
-                        nameRepository.save(Name.builder().name(name).type(NameType.EQUIPMENT_GODSENT).build());
+                        nameRepository.save(Name.builder().name(name).type(NameType.EQUIPMENT).build());
                 }
 
                 log.info("Initialized {} names", nameRepository.count());

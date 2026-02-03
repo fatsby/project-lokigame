@@ -54,4 +54,20 @@ public class DatabaseNameProvider implements NameProviderService {
 
         return names.get(random.nextInt(names.size()));
     }
+
+    private static final String[] FALLBACK_EQUIPMENT = { "Cursed", "Ancient", "Hallowed" };
+
+    @Override
+    public String getRandomEquipmentPrefix(Random random) {
+        List<String> names = nameRepository.findByType(NameType.EQUIPMENT).stream()
+                .map(Name::getName)
+                .collect(Collectors.toList());
+
+        if (names.isEmpty()) {
+            log.warn("No equipment names found in database, using fallback");
+            return FALLBACK_EQUIPMENT[random.nextInt(FALLBACK_EQUIPMENT.length)];
+        }
+
+        return names.get(random.nextInt(names.size()));
+    }
 }
