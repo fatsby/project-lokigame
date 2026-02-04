@@ -14,6 +14,7 @@ public class BattleController {
 
         private final BattleService battleService;
 
+        @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
         @PostMapping("/simulate")
         public ResponseEntity<BattleSimulateResponse> simulateBattle(@RequestBody BattleSimulateRequest request) {
                 BattleSimulateResponse response = battleService.simulateBattle(

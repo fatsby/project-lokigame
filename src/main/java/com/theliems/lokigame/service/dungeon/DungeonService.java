@@ -43,7 +43,7 @@ public class DungeonService {
     }
 
     @Transactional
-    public DungeonRunResult runDungeon(UUID playerId, UUID dungeonId) {
+    DungeonRunResult grantRewards(UUID playerId, UUID dungeonId) {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> exceptionFactory.resourceNotFound("Player", playerId));
 

@@ -21,7 +21,6 @@ public class DungeonController {
 
         private final DungeonRepository dungeonRepository;
         private final DungeonMapper dungeonMapper;
-        private final com.theliems.lokigame.service.dungeon.DungeonService dungeonService;
 
         @GetMapping
         public ResponseEntity<List<DungeonResponse>> getAll() {
@@ -68,11 +67,4 @@ public class DungeonController {
                 return ResponseEntity.notFound().build();
         }
 
-        // Existing run logic
-        @PostMapping("/{dungeonId}/run")
-        public ResponseEntity<com.theliems.lokigame.service.dungeon.DungeonService.DungeonRunResult> runDungeon(
-                        @PathVariable UUID dungeonId,
-                        @RequestParam UUID playerId) {
-                return ResponseEntity.ok(dungeonService.runDungeon(playerId, dungeonId));
-        }
 }
