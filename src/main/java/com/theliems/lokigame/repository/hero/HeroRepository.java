@@ -16,20 +16,13 @@ import java.util.UUID;
 public interface HeroRepository extends JpaRepository<Hero, UUID> {
     List<Hero> findByOwner_PlayerId(UUID ownerId);
 
-    /**
-     * Find all heroes for a player with full details for leveling.
-     */
-    default List<Hero> findByPlayerId(UUID playerId) {
-        return findByPlayerIdFull(playerId);
-    }
-
     @Query("""
                 select distinct h from Hero h
                 join fetch h.heroClass
                 join fetch h.origin
                 join fetch h.originWorld
                 left join fetch h.stats
-                where h.owner.playerId = :playerId and h.alive = true
+                where h.owner.playerId = :playerId
             """)
     List<Hero> findByPlayerIdFull(@Param("playerId") UUID playerId);
 
@@ -39,7 +32,17 @@ public interface HeroRepository extends JpaRepository<Hero, UUID> {
                 join fetch h.origin
                 join fetch h.originWorld
                 left join fetch h.stats
-                where h.id = :heroId
+                where h.owner.playerId = :playerId and h.alive = true
+            """)
+    List<Hero> findByPlayerIdAndAlive(@Param("playerId") UUID playerId);
+
+    @Query("""
+                select distinct h from Hero h
+                join fetch h.heroClass
+                join fetch h.origin
+                join fetch h.originWorld
+                left join fetch h.stats
+                where h.heroId = :heroId
             """)
     Optional<Hero> findByIdWithDetails(@Param("heroId") UUID heroId);
 
