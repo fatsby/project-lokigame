@@ -4,6 +4,7 @@ import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResult;
 import com.theliems.lokigame.service.battle.BattleService;
+import com.theliems.lokigame.service.player.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,11 @@ public class DungeonRunFacade {
 
     private final BattleService battleService;
     private final DungeonService dungeonService;
+    private final PlayerService playerService;
 
     @Transactional
-    public DungeonRunResponse executeDungeonRun(UUID playerId, List<UUID> heroIds, UUID dungeonId) {
+    public DungeonRunResponse executeDungeonRun(List<UUID> heroIds, UUID dungeonId) {
+        UUID playerId = playerService.getCurrentPlayer().getPlayerId();
         log.info("Starting dungeon run for player {} in dungeon {} with heroes {}", playerId, dungeonId, heroIds);
 
         // 1. Simulate Battle

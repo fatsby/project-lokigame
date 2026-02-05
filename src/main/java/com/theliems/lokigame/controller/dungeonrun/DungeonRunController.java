@@ -21,7 +21,6 @@ public class DungeonRunController {
     @PostMapping
     public ResponseEntity<DungeonRunResponse> executeDungeonRun(@Valid @RequestBody DungeonRunRequest request) {
         DungeonRunResponse response = dungeonRunFacade.executeDungeonRun(
-                request.getPlayerId(),
                 request.getHeroIds(),
                 request.getDungeonId());
         return ResponseEntity.ok(response);
