@@ -27,6 +27,7 @@ public class HeroResponse {
     private OriginResponse origin;
     private Integer level;
     private Integer star;
+    private Boolean alive;
     private Long experience;
     private Double willPower;
     private Double expPerSecond;
