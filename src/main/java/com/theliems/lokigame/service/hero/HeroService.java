@@ -105,6 +105,16 @@ public class HeroService {
         }
     }
 
+    public void areAllHeroesAlive(List<UUID> heroIds){
+        if (!heroRepository.areAllHeroesAlive(heroIds)) {
+            throw exceptionFactory.validationError("One or more heroes are dead.");
+        }
+    }
+
+    public void updateHeroAliveStatus(List<UUID> heroIds, boolean status) {
+        heroRepository.updateAliveStatus(heroIds, status);
+    }
+
     private void applyEquipmentStats(Hero hero, EquipmentItem equipment) {
         // Apply base stats
         if (equipment.getBaseStats() != null) {
