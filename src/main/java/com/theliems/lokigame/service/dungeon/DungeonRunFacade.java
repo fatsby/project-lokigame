@@ -2,6 +2,7 @@ package com.theliems.lokigame.service.dungeon;
 
 import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResponse;
+import com.theliems.lokigame.model.dto.dungeon.DungeonRunResult;
 import com.theliems.lokigame.service.battle.BattleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class DungeonRunFacade {
         BattleSimulateResponse battleResult = battleService.simulateBattle(heroIds, dungeonId);
 
         // 2. Grant rewards only if heroes won
-        DungeonService.DungeonRunResult rewardResult = null;
+        DungeonRunResult rewardResult = null;
         if ("HEROES".equals(battleResult.getWinner())) {
             rewardResult = dungeonService.grantRewards(playerId, dungeonId);
             log.info("Dungeon run victory! rewards granted for player {}", playerId);
@@ -41,29 +41,17 @@ public class DungeonRunFacade {
     }
 
     private DungeonRunResponse buildUnifiedResponse(BattleSimulateResponse battleResult,
-            DungeonService.DungeonRunResult rewardResult) {
+            DungeonRunResult rewardResult) {
         DungeonRunResponse.DungeonRunResponseBuilder builder = DungeonRunResponse.builder()
                 .dungeonId(battleResult.getDungeon().getId())
                 .winner(battleResult.getWinner())
                 .turns(battleResult.getTurns())
                 .xpAwarded(battleResult.getXpAwarded())
                 .levelUpResults(battleResult.getLevelUpResults())
-                .battleLogs(battleResult.getLogs().stream()
-                        .map(logEntry -> DungeonRunResponse.BattleLogEntry.builder()
-                                .turn(logEntry.getTurn())
-                                .message(logEntry.getMessage())
-                                .build())
-                        .collect(Collectors.toList()));
+                .battleLogs(battleResult.getLogs()); // Direct assignment - same DTO type
 
         if (rewardResult != null) {
-            builder.rewards(rewardResult.getRewards().stream()
-                    .map(reward -> DungeonRunResponse.RewardResponse.builder()
-                            .type(reward.getType())
-                            .amount(reward.getAmount())
-                            .equipmentId(reward.getItemId())
-                            .name(reward.getName())
-                            .build())
-                    .collect(Collectors.toList()));
+            builder.rewards(rewardResult.getRewards()); // Direct assignment - same DTO type
         }
 
         return builder.build();

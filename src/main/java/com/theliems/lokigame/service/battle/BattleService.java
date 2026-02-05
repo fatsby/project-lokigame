@@ -11,6 +11,7 @@ import com.theliems.lokigame.service.leveling.LevelingService;
 import com.theliems.lokigame.service.leveling.XpCalculatorService;
 import com.theliems.lokigame.model.dto.leveling.LevelUpResult;
 import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
+import com.theliems.lokigame.model.dto.battle.BattleUnitState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,6 @@ public class BattleService {
 
                 if (victory && dungeon.getDropTable() != null) {
                         xpReward = xpCalculatorService.calculateBattleXp(dungeon.getDropTable(), true);
-//                        long xpPerHero = xpReward / heroes.size();
 
                         for (Hero hero : heroes) {
                                 LevelUpResult levelResult = levelingService.addExperience(hero, xpReward);
@@ -77,50 +77,39 @@ public class BattleService {
                                         xpReward, heroes.size(), dungeon.getName());
                 }
 
-                // Map to DTO
-                List<BattleSimulateResponse.BattleLogEntry> logs = result
-                                .getLogs()
-                                .stream()
-                                .map(logEntry -> BattleSimulateResponse.BattleLogEntry
-                                                .builder()
-                                                .turn(logEntry.getTurn())
-                                                .message(logEntry.getMessage())
-                                                .build())
-                                .collect(Collectors.toList());
+                // Map final hero/monster states from BattleUnits
+                List<BattleUnitState> heroStates = result.getHeroUnits() != null
+                                ? result.getHeroUnits().stream()
+                                                .map(this::mapBattleUnitToState)
+                                                .collect(Collectors.toList())
+                                : null;
 
-                List<BattleSimulateResponse.BattleUnitState> heroStates = result
-                                .getHeroUnits() != null ? result.getHeroUnits().stream()
-                                                .map(u -> BattleSimulateResponse.BattleUnitState
-                                                                .builder()
-                                                                .id(u.getId())
-                                                                .name(u.getName())
-                                                                .maxHp(u.getMaxHp())
-                                                                .currentHp(u.getCurrentHp())
-                                                                .isHero(u.isHero())
-                                                                .build())
-                                                .collect(Collectors.toList()) : null;
-
-                List<BattleSimulateResponse.BattleUnitState> monsterStates = result
-                                .getMonsterUnits() != null ? result.getMonsterUnits().stream()
-                                                .map(u -> BattleSimulateResponse.BattleUnitState
-                                                                .builder()
-                                                                .id(u.getId())
-                                                                .name(u.getName())
-                                                                .maxHp(u.getMaxHp())
-                                                                .currentHp(u.getCurrentHp())
-                                                                .isHero(u.isHero())
-                                                                .build())
-                                                .collect(Collectors.toList()) : null;
+                List<BattleUnitState> monsterStates = result.getMonsterUnits() != null
+                                ? result.getMonsterUnits().stream()
+                                                .map(this::mapBattleUnitToState)
+                                                .collect(Collectors.toList())
+                                : null;
 
                 return BattleSimulateResponse.builder()
                                 .winner(result.getWinner())
                                 .turns(result.getTurns())
-                                .logs(logs)
+                                .logs(result.getLogs()) // Logs already contain BattleLogEntry DTOs
                                 .heroes(heroStates)
                                 .monsters(monsterStates)
                                 .dungeon(dungeonMapper.toDto(dungeon))
                                 .xpAwarded(xpReward)
                                 .levelUpResults(levelUpResults)
+                                .build();
+        }
+
+        private BattleUnitState mapBattleUnitToState(BattleEngine.BattleUnit unit) {
+                return BattleUnitState.builder()
+                                .id(unit.getId())
+                                .name(unit.getName())
+                                .maxHp(unit.getMaxHp())
+                                .currentHp(unit.getCurrentHp())
+                                .isHero(unit.isHero())
+                                .isAlive(unit.getCurrentHp() > 0)
                                 .build();
         }
 }

@@ -5,11 +5,11 @@ import com.theliems.lokigame.model.entity.dungeon.DropTable;
 import com.theliems.lokigame.model.entity.dungeon.Dungeon;
 import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
 import com.theliems.lokigame.model.entity.player.Player;
+import com.theliems.lokigame.model.dto.dungeon.DungeonReward;
+import com.theliems.lokigame.model.dto.dungeon.DungeonRunResult;
 import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 import com.theliems.lokigame.repository.player.PlayerRepository;
 import com.theliems.lokigame.service.equipment.EquipmentService;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,14 +56,14 @@ public class DungeonService {
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        List<Reward> rewards = new ArrayList<>();
+        List<DungeonReward> rewards = new ArrayList<>();
 
         // 1. Calculate and Persist Gold Reward
         long goldReward = (long) (dropTable.getBaseGold() * dropTable.getGoldMultiplier() * dungeon.getLevel());
         player.setGold(player.getGold() + goldReward);
         playerRepository.save(player);
 
-        rewards.add(Reward.builder()
+        rewards.add(DungeonReward.builder()
                 .type("GOLD")
                 .amount(goldReward)
                 .build());
@@ -79,7 +79,7 @@ public class DungeonService {
             EquipmentItem equipmentItem = equipmentService.generateEquipment(playerId, randomType, dungeon.getLevel(),
                     dungeon.getLevel());
 
-            rewards.add(Reward.builder()
+            rewards.add(DungeonReward.builder()
                     .type("EQUIPMENT")
                     .amount(1L)
                     .itemId(equipmentItem.getId())
@@ -99,21 +99,5 @@ public class DungeonService {
                 .dungeonId(dungeonId)
                 .rewards(rewards)
                 .build();
-    }
-
-    @Data
-    @Builder
-    public static class DungeonRunResult {
-        private UUID dungeonId;
-        private List<Reward> rewards;
-    }
-
-    @Data
-    @Builder
-    public static class Reward {
-        private String type; // GOLD, EQUIPMENT
-        private Long amount;
-        private UUID itemId;
-        private String name;
     }
 }

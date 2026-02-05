@@ -4,6 +4,8 @@ import com.theliems.lokigame.model.entity.hero.Hero;
 import com.theliems.lokigame.model.entity.hero.HeroStats;
 import com.theliems.lokigame.model.entity.dungeon.Monster;
 import com.theliems.lokigame.model.enums.StatType;
+import com.theliems.lokigame.model.dto.battle.BattleLogEntry;
+import com.theliems.lokigame.model.dto.battle.BattleUnitState;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,9 @@ public class BattleEngine {
         logs.add(BattleLogEntry.builder()
                 .turn(0)
                 .message("Battle begins! Heroes: " + heroes.size() + ", Monsters: " + monsters.size())
+                .actionType("START")
+                .heroStates(createSnapshots(heroUnits))
+                .monsterStates(createSnapshots(monsterUnits))
                 .build());
 
         int turn = 0;
@@ -68,14 +73,21 @@ public class BattleEngine {
                 }
 
                 // Calculate damage
-                double damage = calculateDamage(unit, target, random);
-                target.setCurrentHp(Math.max(0, target.getCurrentHp() - damage));
+                DamageResult damageResult = calculateDamage(unit, target, random);
+                target.setCurrentHp(Math.max(0, target.getCurrentHp() - damageResult.damage));
 
                 logs.add(BattleLogEntry.builder()
                         .turn(turn)
                         .message(String.format("%s attacks %s for %.1f damage. %s HP: %.1f/%.1f",
-                                unit.getName(), target.getName(), damage,
+                                unit.getName(), target.getName(), damageResult.damage,
                                 target.getName(), target.getCurrentHp(), target.getMaxHp()))
+                        .actionType("ATTACK")
+                        .attackerId(unit.getId())
+                        .targetId(target.getId())
+                        .damage(damageResult.damage)
+                        .isCritical(damageResult.isCritical)
+                        .heroStates(createSnapshots(heroUnits))
+                        .monsterStates(createSnapshots(monsterUnits))
                         .build());
 
                 // Check if battle is over
@@ -86,6 +98,9 @@ public class BattleEngine {
                     logs.add(BattleLogEntry.builder()
                             .turn(turn)
                             .message("Monsters win!")
+                            .actionType("WIN_MONSTERS")
+                            .heroStates(createSnapshots(heroUnits))
+                            .monsterStates(createSnapshots(monsterUnits))
                             .build());
                     return BattleResult.builder()
                             .logs(logs)
@@ -100,6 +115,9 @@ public class BattleEngine {
                     logs.add(BattleLogEntry.builder()
                             .turn(turn)
                             .message("Heroes win!")
+                            .actionType("WIN_HEROES")
+                            .heroStates(createSnapshots(heroUnits))
+                            .monsterStates(createSnapshots(monsterUnits))
                             .build());
                     return BattleResult.builder()
                             .logs(logs)
@@ -112,10 +130,12 @@ public class BattleEngine {
             }
         }
 
-        // Battle timeout
         logs.add(BattleLogEntry.builder()
                 .turn(turn)
                 .message("Battle timeout - Draw")
+                .actionType("DRAW")
+                .heroStates(createSnapshots(heroUnits))
+                .monsterStates(createSnapshots(monsterUnits))
                 .build());
         return BattleResult.builder()
                 .logs(logs)
@@ -124,6 +144,19 @@ public class BattleEngine {
                 .heroUnits(heroUnits)
                 .monsterUnits(monsterUnits)
                 .build();
+    }
+
+    private List<BattleUnitState> createSnapshots(List<BattleUnit> units) {
+        return units.stream()
+                .map(u -> BattleUnitState.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .maxHp(u.getMaxHp())
+                        .currentHp(u.getCurrentHp())
+                        .isHero(u.isHero())
+                        .isAlive(u.getCurrentHp() > 0)
+                        .build())
+                .toList();
     }
 
     private BattleUnit createBattleUnit(Hero hero) {
@@ -182,19 +215,21 @@ public class BattleEngine {
         return targets.get(random.nextInt(targets.size()));
     }
 
-    private double calculateDamage(BattleUnit attacker, BattleUnit defender, ThreadLocalRandom random) {
+    private DamageResult calculateDamage(BattleUnit attacker, BattleUnit defender, ThreadLocalRandom random) {
         // Base damage formula: ATK * skillMultiplier - DEF
         double skillMultiplier = 1.0; // Can be enhanced with skills later
         double baseDamage = attacker.getAtk() * skillMultiplier - defender.getDef();
         baseDamage = Math.max(1.0, baseDamage); // Minimum 1 damage
 
+        boolean isCritical = false;
         // Check for crit
         if (random.nextDouble() < attacker.getCritRate()) {
             baseDamage *= attacker.getCritDamage();
+            isCritical = true;
             log.debug("Critical hit! {} crits {} for {} damage", attacker.getName(), defender.getName(), baseDamage);
         }
 
-        return baseDamage;
+        return new DamageResult(baseDamage, isCritical);
     }
 
     @Data
@@ -222,10 +257,6 @@ public class BattleEngine {
         private List<BattleUnit> monsterUnits;
     }
 
-    @Data
-    @Builder
-    public static class BattleLogEntry {
-        private int turn;
-        private String message;
+    private record DamageResult(double damage, boolean isCritical) {
     }
 }

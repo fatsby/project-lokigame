@@ -1,14 +1,19 @@
 package com.theliems.lokigame.model.dto.dungeon;
 
+import com.theliems.lokigame.model.dto.battle.BattleLogEntry;
 import com.theliems.lokigame.model.dto.leveling.LevelUpResult;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DungeonRunResponse {
     private UUID dungeonId;
 
@@ -20,21 +25,5 @@ public class DungeonRunResponse {
     private List<LevelUpResult> levelUpResults;
 
     // Rewards (null if battle lost)
-    private List<RewardResponse> rewards;
-
-    @Data
-    @Builder
-    public static class RewardResponse {
-        private String type;
-        private Long amount;
-        private UUID equipmentId;
-        private String name;
-    }
-
-    @Data
-    @Builder
-    public static class BattleLogEntry {
-        private int turn;
-        private String message;
-    }
+    private List<DungeonReward> rewards;
 }

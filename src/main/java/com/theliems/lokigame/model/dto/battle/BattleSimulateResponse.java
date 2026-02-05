@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -28,25 +27,4 @@ public class BattleSimulateResponse {
     // XP rewards (from leveling system)
     private long xpAwarded;
     private List<LevelUpResult> levelUpResults;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class BattleLogEntry {
-        private int turn;
-        private String message;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class BattleUnitState {
-        private UUID id;
-        private String name;
-        private double maxHp;
-        private double currentHp;
-        private boolean isHero;
-    }
 }
