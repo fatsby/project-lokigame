@@ -1,52 +1,54 @@
 package com.theliems.lokigame.model.entity.dungeon;
 
 import com.theliems.lokigame.model.enums.StatType;
-import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Entity
-@Table(name = "monsters")
+/**
+ * Transient scaled monster instance (not persisted).
+ * Generated procedurally from MonsterTemplate at a specific dungeon level.
+ * Used by BattleService for combat simulation.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class Monster {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    /**
+     * Unique identifier for this monster instance within the dungeon.
+     */
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    /**
+     * Display name of the monster.
+     */
     private String name;
 
-    @Column(length = 500)
+    /**
+     * Optional description/flavor text.
+     */
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dungeon_id", nullable = false)
-    private Dungeon dungeon;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer level = 1;
+    /**
+     * Reference to the MonsterTemplate this was scaled from.
+     */
+    private UUID templateId;
 
     /**
-     * Monster stats stored as JSONB for flexibility.
-     * Format: {"HP": 1000.0, "ATK": 100.0, "DEF": 50.0, "SPEED": 80.0, "CRIT_RATE":
-     * 0.1, "CRIT_DAMAGE": 1.5}
+     * The level this monster was scaled to.
      */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "monster_stats", joinColumns = @JoinColumn(name = "monster_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    @MapKeyColumn(name = "stat_type")
-    @Column(name = "stat_value")
+    private Integer level;
+
+    /**
+     * Final calculated stats after scaling.
+     * Format: {HP: 1000.0, ATK: 100.0, DEF: 50.0, SPEED: 80.0, CRIT_RATE: 0.1,
+     * CRIT_DAMAGE: 1.5}
+     */
     @Builder.Default
     private Map<StatType, Double> stats = new HashMap<>();
 }

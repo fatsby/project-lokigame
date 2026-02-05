@@ -4,7 +4,6 @@ import com.theliems.lokigame.engine.BattleEngine;
 import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.model.entity.dungeon.Dungeon;
 import com.theliems.lokigame.model.entity.hero.Hero;
-import com.theliems.lokigame.repository.dungeon.DungeonRepository;
 
 import com.theliems.lokigame.service.hero.HeroService;
 import com.theliems.lokigame.service.leveling.LevelingService;
@@ -12,6 +11,7 @@ import com.theliems.lokigame.service.leveling.XpCalculatorService;
 import com.theliems.lokigame.model.dto.leveling.LevelUpResult;
 import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
 import com.theliems.lokigame.model.dto.battle.BattleUnitState;
+import com.theliems.lokigame.mapper.DungeonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Service for simulating battles between heroes and dungeon monsters.
+ * Refactored to work with procedurally generated dungeons.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,15 +33,20 @@ public class BattleService {
 
         private final BattleEngine battleEngine;
         private final HeroService heroService;
-        private final DungeonRepository dungeonRepository;
         private final ExceptionFactory exceptionFactory;
-        private final com.theliems.lokigame.mapper.DungeonMapper dungeonMapper;
+        private final DungeonMapper dungeonMapper;
         private final XpCalculatorService xpCalculatorService;
         private final LevelingService levelingService;
 
+        /**
+         * Simulate a battle between heroes and a procedurally generated dungeon.
+         * 
+         * @param heroIds List of hero UUIDs to participate in battle
+         * @param dungeon The procedurally generated dungeon
+         * @return Battle simulation response with results
+         */
         @Transactional
-        public BattleSimulateResponse simulateBattle(List<UUID> heroIds,
-                        UUID dungeonId) {
+        public BattleSimulateResponse simulateBattle(List<UUID> heroIds, Dungeon dungeon) {
                 // Load heroes
                 List<Hero> heroes = heroIds.stream()
                                 .map(heroId -> heroService.getHeroById(heroId))
@@ -46,10 +55,6 @@ public class BattleService {
                 if (heroes.isEmpty()) {
                         throw exceptionFactory.validationError("At least one hero is required");
                 }
-
-                // Load dungeon and monsters
-                Dungeon dungeon = dungeonRepository.findById(dungeonId)
-                                .orElseThrow(() -> exceptionFactory.resourceNotFound("Dungeon", dungeonId));
 
                 if (dungeon.getMonsters().isEmpty()) {
                         throw exceptionFactory.validationError("Dungeon has no monsters");
@@ -73,8 +78,8 @@ public class BattleService {
                                 levelUpResults.add(levelResult);
                         }
 
-                        log.info("Awarded {} XP to {} heroes for dungeon {} victory",
-                                        xpReward, heroes.size(), dungeon.getName());
+                        log.info("Awarded {} XP to {} heroes for dungeon (level {}) victory",
+                                        xpReward, heroes.size(), dungeon.getLevel());
                 }
 
                 // Map final hero/monster states from BattleUnits
@@ -93,7 +98,7 @@ public class BattleService {
                 return BattleSimulateResponse.builder()
                                 .winner(result.getWinner())
                                 .turns(result.getTurns())
-                                .logs(result.getLogs()) // Logs already contain BattleLogEntry DTOs
+                                .logs(result.getLogs())
                                 .heroes(heroStates)
                                 .monsters(monsterStates)
                                 .dungeon(dungeonMapper.toDto(dungeon))

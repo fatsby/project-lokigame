@@ -1,15 +1,13 @@
 package com.theliems.lokigame.infrastructure.config;
 
-import com.theliems.lokigame.model.entity.dungeon.DropTable;
-import com.theliems.lokigame.model.entity.dungeon.Dungeon;
-import com.theliems.lokigame.model.entity.dungeon.Monster;
+import com.theliems.lokigame.model.entity.dungeon.MonsterTemplate;
 import com.theliems.lokigame.model.entity.hero.HeroClass;
 import com.theliems.lokigame.model.entity.hero.Origin;
 import com.theliems.lokigame.model.entity.hero.World;
 import com.theliems.lokigame.model.entity.name.Name;
 import com.theliems.lokigame.model.enums.NameType;
 import com.theliems.lokigame.model.enums.StatType;
-import com.theliems.lokigame.repository.dungeon.DungeonRepository;
+import com.theliems.lokigame.repository.dungeon.MonsterTemplateRepository;
 import com.theliems.lokigame.repository.hero.HeroClassRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
 import com.theliems.lokigame.repository.hero.WorldRepository;
@@ -31,7 +29,7 @@ public class GameDataInitialize implements CommandLineRunner {
         private final HeroClassRepository heroClassRepository;
         private final OriginRepository originRepository;
         private final WorldRepository worldRepository;
-        private final DungeonRepository dungeonRepository;
+        private final MonsterTemplateRepository monsterTemplateRepository;
         private final NameRepository nameRepository;
 
         @Transactional
@@ -45,8 +43,8 @@ public class GameDataInitialize implements CommandLineRunner {
                 if (worldRepository.count() == 0) {
                         initializeWorlds();
                 }
-                if (dungeonRepository.count() == 0) {
-                        initializeDungeons();
+                if (monsterTemplateRepository.count() == 0) {
+                        initializeMonsterTemplates();
                 }
                 if (nameRepository.count() == 0) {
                         initializeNames();
@@ -222,82 +220,138 @@ public class GameDataInitialize implements CommandLineRunner {
                 log.info("Initialized {} worlds", worldRepository.count());
         }
 
-        private void initializeDungeons() {
-                // Dungeon 1: Goblin Cave
-                Map<StatType, Double> goblinStats = new HashMap<>();
-                goblinStats.put(StatType.HP, 2000.0);
-                goblinStats.put(StatType.ATK, 150.0);
-                goblinStats.put(StatType.DEF, 100.0);
-                goblinStats.put(StatType.SPEED, 150.0);
-                goblinStats.put(StatType.CRIT_RATE, 0.05);
-                goblinStats.put(StatType.CRIT_DAMAGE, 1.5);
+        /**
+         * Initialize monster templates for procedural dungeon generation.
+         * Templates define base stats and growth - actual monsters are scaled at
+         * runtime.
+         */
+        private void initializeMonsterTemplates() {
+                // Goblin - Weak but fast
+                Map<StatType, Double> goblinBaseStats = new HashMap<>();
+                goblinBaseStats.put(StatType.HP, 100.0);
+                goblinBaseStats.put(StatType.ATK, 15.0);
+                goblinBaseStats.put(StatType.DEF, 5.0);
+                goblinBaseStats.put(StatType.SPEED, 80.0);
+                goblinBaseStats.put(StatType.CRIT_RATE, 0.1);
+                goblinBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
 
-                Monster goblin = Monster.builder()
+                Map<StatType, Double> goblinGrowth = new HashMap<>();
+                goblinGrowth.put(StatType.HP, 20.0);
+                goblinGrowth.put(StatType.ATK, 5.0);
+                goblinGrowth.put(StatType.DEF, 2.0);
+                goblinGrowth.put(StatType.SPEED, 3.0);
+                goblinGrowth.put(StatType.CRIT_RATE, 0.005);
+                goblinGrowth.put(StatType.CRIT_DAMAGE, 0.02);
+
+                MonsterTemplate goblin = MonsterTemplate.builder()
                                 .name("Goblin")
                                 .description("A small but dangerous creature")
-                                .level(1)
-                                .stats(goblinStats)
+                                .baseStats(goblinBaseStats)
+                                .statGrowthPerLevel(goblinGrowth)
                                 .build();
+                monsterTemplateRepository.save(goblin);
 
-                Dungeon goblinCave = Dungeon.builder()
-                                .name("Goblin Cave")
-                                .description("A dark cave filled with goblins")
-                                .level(1)
-                                .build();
-                goblin.setDungeon(goblinCave); // Set bidirectional relationship first
-                goblinCave.getMonsters().add(goblin);
+                // Orc Warrior - Tanky with high attack
+                Map<StatType, Double> orcBaseStats = new HashMap<>();
+                orcBaseStats.put(StatType.HP, 250.0);
+                orcBaseStats.put(StatType.ATK, 30.0);
+                orcBaseStats.put(StatType.DEF, 15.0);
+                orcBaseStats.put(StatType.SPEED, 40.0);
+                orcBaseStats.put(StatType.CRIT_RATE, 0.05);
+                orcBaseStats.put(StatType.CRIT_DAMAGE, 1.8);
 
-                DropTable goblinDropTable = DropTable.builder()
-                                .dungeon(goblinCave)
-                                .baseGold(100L)
-                                .goldMultiplier(1.0)
-                                .equipmentDropChance(0.3)
-                                .materialDropChance(0.5)
-                                .baseXp(50L) // Easy dungeon = low XP
-                                .xpMultiplier(1.0)
-                                .build();
-                goblinCave.setDropTable(goblinDropTable);
+                Map<StatType, Double> orcGrowth = new HashMap<>();
+                orcGrowth.put(StatType.HP, 50.0);
+                orcGrowth.put(StatType.ATK, 10.0);
+                orcGrowth.put(StatType.DEF, 5.0);
+                orcGrowth.put(StatType.SPEED, 1.0);
+                orcGrowth.put(StatType.CRIT_RATE, 0.003);
+                orcGrowth.put(StatType.CRIT_DAMAGE, 0.03);
 
-                dungeonRepository.save(goblinCave);
-
-                // Dungeon 2: Orc Stronghold
-                Map<StatType, Double> orcStats = new HashMap<>();
-                orcStats.put(StatType.HP, 5000.0);
-                orcStats.put(StatType.ATK, 600.0);
-                orcStats.put(StatType.DEF, 100.0);
-                orcStats.put(StatType.SPEED, 150.0);
-                orcStats.put(StatType.CRIT_RATE, 0.1);
-                orcStats.put(StatType.CRIT_DAMAGE, 1.8);
-
-                Monster orc = Monster.builder()
+                MonsterTemplate orc = MonsterTemplate.builder()
                                 .name("Orc Warrior")
                                 .description("A powerful orc warrior")
-                                .level(5)
-                                .stats(orcStats)
+                                .baseStats(orcBaseStats)
+                                .statGrowthPerLevel(orcGrowth)
                                 .build();
+                monsterTemplateRepository.save(orc);
 
-                Dungeon orcStronghold = Dungeon.builder()
-                                .name("Orc Stronghold")
-                                .description("A fortified orc encampment")
-                                .level(5)
+                // Skeleton Archer - Glass cannon
+                Map<StatType, Double> skeletonBaseStats = new HashMap<>();
+                skeletonBaseStats.put(StatType.HP, 80.0);
+                skeletonBaseStats.put(StatType.ATK, 40.0);
+                skeletonBaseStats.put(StatType.DEF, 3.0);
+                skeletonBaseStats.put(StatType.SPEED, 60.0);
+                skeletonBaseStats.put(StatType.CRIT_RATE, 0.2);
+                skeletonBaseStats.put(StatType.CRIT_DAMAGE, 2.0);
+
+                Map<StatType, Double> skeletonGrowth = new HashMap<>();
+                skeletonGrowth.put(StatType.HP, 15.0);
+                skeletonGrowth.put(StatType.ATK, 12.0);
+                skeletonGrowth.put(StatType.DEF, 1.0);
+                skeletonGrowth.put(StatType.SPEED, 2.0);
+                skeletonGrowth.put(StatType.CRIT_RATE, 0.008);
+                skeletonGrowth.put(StatType.CRIT_DAMAGE, 0.05);
+
+                MonsterTemplate skeleton = MonsterTemplate.builder()
+                                .name("Skeleton Archer")
+                                .description("An undead archer with deadly precision")
+                                .baseStats(skeletonBaseStats)
+                                .statGrowthPerLevel(skeletonGrowth)
                                 .build();
-                orc.setDungeon(orcStronghold); // Set bidirectional relationship first
-                orcStronghold.getMonsters().add(orc);
+                monsterTemplateRepository.save(skeleton);
 
-                DropTable orcDropTable = DropTable.builder()
-                                .dungeon(orcStronghold)
-                                .baseGold(500L)
-                                .goldMultiplier(1.5)
-                                .equipmentDropChance(0.5)
-                                .materialDropChance(0.7)
-                                .baseXp(150L) // Harder dungeon = more XP
-                                .xpMultiplier(1.5)
+                // Troll - Very tanky, slow but powerful
+                Map<StatType, Double> trollBaseStats = new HashMap<>();
+                trollBaseStats.put(StatType.HP, 400.0);
+                trollBaseStats.put(StatType.ATK, 25.0);
+                trollBaseStats.put(StatType.DEF, 25.0);
+                trollBaseStats.put(StatType.SPEED, 20.0);
+                trollBaseStats.put(StatType.CRIT_RATE, 0.02);
+                trollBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
+
+                Map<StatType, Double> trollGrowth = new HashMap<>();
+                trollGrowth.put(StatType.HP, 80.0);
+                trollGrowth.put(StatType.ATK, 8.0);
+                trollGrowth.put(StatType.DEF, 8.0);
+                trollGrowth.put(StatType.SPEED, 0.5);
+                trollGrowth.put(StatType.CRIT_RATE, 0.001);
+                trollGrowth.put(StatType.CRIT_DAMAGE, 0.01);
+
+                MonsterTemplate troll = MonsterTemplate.builder()
+                                .name("Forest Troll")
+                                .description("A massive troll with regenerative abilities")
+                                .baseStats(trollBaseStats)
+                                .statGrowthPerLevel(trollGrowth)
                                 .build();
-                orcStronghold.setDropTable(orcDropTable);
+                monsterTemplateRepository.save(troll);
 
-                dungeonRepository.save(orcStronghold);
+                // Dark Mage - High damage caster
+                Map<StatType, Double> mageBaseStats = new HashMap<>();
+                mageBaseStats.put(StatType.HP, 120.0);
+                mageBaseStats.put(StatType.ATK, 50.0);
+                mageBaseStats.put(StatType.DEF, 5.0);
+                mageBaseStats.put(StatType.SPEED, 50.0);
+                mageBaseStats.put(StatType.CRIT_RATE, 0.15);
+                mageBaseStats.put(StatType.CRIT_DAMAGE, 2.2);
 
-                log.info("Initialized {} dungeons", dungeonRepository.count());
+                Map<StatType, Double> mageGrowth = new HashMap<>();
+                mageGrowth.put(StatType.HP, 25.0);
+                mageGrowth.put(StatType.ATK, 15.0);
+                mageGrowth.put(StatType.DEF, 1.5);
+                mageGrowth.put(StatType.SPEED, 2.0);
+                mageGrowth.put(StatType.CRIT_RATE, 0.006);
+                mageGrowth.put(StatType.CRIT_DAMAGE, 0.06);
+
+                MonsterTemplate darkMage = MonsterTemplate.builder()
+                                .name("Dark Mage")
+                                .description("A sinister spellcaster wielding dark magic")
+                                .baseStats(mageBaseStats)
+                                .statGrowthPerLevel(mageGrowth)
+                                .build();
+                monsterTemplateRepository.save(darkMage);
+
+                log.info("Initialized {} monster templates", monsterTemplateRepository.count());
         }
 
         private void initializeNames() {
