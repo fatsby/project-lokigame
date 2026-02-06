@@ -15,13 +15,7 @@ public class DungeonRunRequest {
 
     /**
      * The dungeon level to attempt.
-     * Must be <= player's highestClearedLevel + 1
+     * Must be <= player's highest cleared level + 1
      */
     private Integer dungeonLevel;
-
-    /**
-     * The world to generate the dungeon in.
-     * Affects difficulty scaling and monster stats.
-     */
-    private UUID worldId;
 }

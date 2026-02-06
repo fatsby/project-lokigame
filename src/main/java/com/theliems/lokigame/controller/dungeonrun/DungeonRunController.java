@@ -32,8 +32,7 @@ public class DungeonRunController {
     public ResponseEntity<DungeonRunResponse> executeDungeonRun(@Valid @RequestBody DungeonRunRequest request) {
         DungeonRunResponse response = dungeonRunFacade.executeDungeonRun(
                 request.getHeroIds(),
-                request.getDungeonLevel(),
-                request.getWorldId());
+                request.getDungeonLevel());
         return ResponseEntity.ok(response);
     }
 }

@@ -5,9 +5,11 @@ import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResult;
 import com.theliems.lokigame.model.entity.dungeon.Dungeon;
+import com.theliems.lokigame.model.entity.hero.World;
 import com.theliems.lokigame.service.battle.BattleService;
 import com.theliems.lokigame.service.hero.HeroService;
 import com.theliems.lokigame.service.player.PlayerService;
+import com.theliems.lokigame.utils.WorldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Facade for executing complete dungeon runs.
@@ -30,6 +33,7 @@ public class DungeonRunFacade {
     private final PlayerService playerService;
     private final HeroService heroService;
     private final ExceptionFactory exceptionFactory;
+    private final WorldUtils worldUtils;
 
     /**
      * Execute a complete dungeon run with procedural generation.
@@ -43,17 +47,21 @@ public class DungeonRunFacade {
      * 
      * @param heroIds      List of hero UUIDs to use in battle
      * @param dungeonLevel The dungeon level to attempt
-     * @param worldId      The world to generate the dungeon in
      * @return Complete dungeon run response
      */
     @Transactional
-    public DungeonRunResponse executeDungeonRun(List<UUID> heroIds, int dungeonLevel, UUID worldId) {
+    public DungeonRunResponse executeDungeonRun(List<UUID> heroIds, int dungeonLevel) {
         // Validation check to ensure all heroes are alive
         heroService.areAllHeroesAlive(heroIds);
 
         UUID playerId = playerService.getCurrentPlayer().getPlayerId();
-        log.info("Starting dungeon run for player {} at level {} in world {} with heroes {}",
-                playerId, dungeonLevel, worldId, heroIds);
+
+        // Roll a random world using weighted selection
+        World world = worldUtils.rollWorld(ThreadLocalRandom.current());
+        UUID worldId = world.getWorldId();
+
+        log.info("Starting dungeon run for player {} at level {} in world {} ('{}') with heroes {}",
+                playerId, dungeonLevel, worldId, world.getName(), heroIds);
 
         // 1. Get or generate dungeon (validates level access, creates/retrieves seed)
         Dungeon dungeon = dungeonService.getOrGenerateDungeon(playerId, dungeonLevel, worldId);

@@ -15,6 +15,7 @@ import com.theliems.lokigame.repository.hero.HeroRepository;
 import com.theliems.lokigame.repository.hero.OriginRepository;
 import com.theliems.lokigame.repository.hero.WorldRepository;
 import com.theliems.lokigame.repository.player.PlayerRepository;
+import com.theliems.lokigame.utils.WorldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class HeroRollService {
     private final EquipmentGenerator equipmentGenerator;
     private final EquipmentItemRepository equipmentItemRepository;
     private final HeroService heroService;
+    private final WorldUtils worldUtils;
 
     private static final Long HERO_ROLL_COST = 100L;
 
@@ -61,17 +63,16 @@ public class HeroRollService {
         // Get all available templates
         List<HeroClass> heroClasses = heroClassRepository.findAll();
         List<Origin> origins = originRepository.findAll();
-        List<World> worlds = worldRepository.findAll();
 
-        if (heroClasses.isEmpty() || origins.isEmpty() || worlds.isEmpty()) {
-            throw exceptionFactory.internalError("Missing game data: HeroClasses, Origins, or Worlds not initialized");
+        if (heroClasses.isEmpty() || origins.isEmpty()) {
+            throw exceptionFactory.internalError("Missing game data: HeroClasses or Origins not initialized");
         }
 
         // Random selection
         ThreadLocalRandom random = ThreadLocalRandom.current();
         HeroClass heroClass = heroClasses.get(random.nextInt(heroClasses.size()));
         Origin origin = origins.get(random.nextInt(origins.size()));
-        World world = rollWorld(worlds, random);
+        World world = worldUtils.rollWorld(random);
         // Generate unique random seed
         long randomSeed = random.nextLong();
 
@@ -116,24 +117,5 @@ public class HeroRollService {
             case NECKLACE -> EquipmentType.NECKLACE;
             default -> null;
         };
-    }
-
-    private World rollWorld(List<World> worlds, Random random) {
-        double totalWeight = worlds.stream()
-                .mapToDouble(World::getRarityWeight)
-                .sum();
-
-        double roll = random.nextDouble() * totalWeight;
-
-        double current = 0.0;
-        for (World world : worlds) {
-            current += world.getRarityWeight();
-            if (roll <= current) {
-                return world;
-            }
-        }
-
-        // fallback (should not happen)
-        return worlds.get(0);
     }
 }
