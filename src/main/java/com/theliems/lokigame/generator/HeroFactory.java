@@ -89,39 +89,45 @@ public class HeroFactory {
     }
 
     private List<HeroStats> generateHeroStats(HeroClass heroClass, Origin origin, int star, java.util.Random random,
-            World world) {
+                                              World world) {
         List<HeroStats> stats = new ArrayList<>();
 
         // Star multiplier (higher star = better stats)
-        double starMultiplier = 1.0 + (star - 1) * 0.2; // 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2
+        double starMultiplier = 1.0 + (star - 1) * 0.2;
 
         for (StatType statType : StatType.values()) {
             // Get base value from class
-            double baseValue = heroClass.getBaseStats().getOrDefault(statType, getDefaultBaseValue(statType));
+            double initialBase = heroClass.getBaseStats().getOrDefault(statType, getDefaultBaseValue(statType));
+            double currentVal = initialBase;
 
             // Apply class modifiers
-            double classModifier = heroClass.getStatModifiers().getOrDefault(statType, 0.0);
-            baseValue *= (1.0 + classModifier);
+            double classMod = heroClass.getStatModifiers().getOrDefault(statType, 0.0);
+            currentVal *= (1.0 + classMod);
 
             // Apply origin modifiers
-            double originModifier = origin.getStatModifiers().getOrDefault(statType, 0.0);
-            baseValue *= (1.0 + originModifier);
+            double originMod = origin.getStatModifiers().getOrDefault(statType, 0.0);
+            currentVal *= (1.0 + originMod);
 
             // Apply star multiplier
-            baseValue *= starMultiplier;
+            currentVal *= starMultiplier;
 
-            // need to optimize later
-            double worldModifier = world.getStatMultiplier();
-            baseValue *= (1.0 + worldModifier);
+            // Apply world modifier
+            double worldMod = world.getStatMultiplier();
+            currentVal *= worldMod; //fixed, worldMod already has +1.0, e.g. 1.2 1.5
 
             // Add random variance (90% to 110%)
-            double variance = 0.9 + random.nextDouble() * 0.2; // 0.9 to 1.1
-            baseValue *= variance;
+            double variance = 0.9 + random.nextDouble() * 0.2;
+            double finalBaseValue = currentVal * variance;
+
+            // Detailed debug log showing the calculation chain
+            log.info("Generated {} for {}-{}: Initial: {} | ClassMod: {} | OriginMod: {} | StarMult: {} | WorldMod: {} | Variance: {} | Result: {}",
+                    statType, heroClass.getName(), origin.getName(),
+                    initialBase, classMod, originMod, starMultiplier, worldMod, variance, finalBaseValue);
 
             HeroStats heroStat = HeroStats.builder()
                     .statType(statType)
-                    .baseValue(baseValue)
-                    .finalValue(baseValue) // Will be recalculated with equipment
+                    .baseValue(finalBaseValue)
+                    .finalValue(finalBaseValue)
                     .build();
 
             stats.add(heroStat);

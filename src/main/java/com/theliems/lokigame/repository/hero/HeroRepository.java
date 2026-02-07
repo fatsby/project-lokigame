@@ -22,7 +22,7 @@ public interface HeroRepository extends JpaRepository<Hero, UUID> {
                 join fetch h.origin
                 join fetch h.originWorld
                 left join fetch h.stats
-                where h.owner.playerId = :playerId
+                where h.owner.playerId = :playerId and h.auditMetaData.active = true
             """)
     List<Hero> findByPlayerIdFull(@Param("playerId") UUID playerId);
 
@@ -32,7 +32,7 @@ public interface HeroRepository extends JpaRepository<Hero, UUID> {
                 join fetch h.origin
                 join fetch h.originWorld
                 left join fetch h.stats
-                where h.owner.playerId = :playerId and h.alive = true
+                where h.owner.playerId = :playerId and h.alive = true and h.auditMetaData.active = true
             """)
     List<Hero> findByPlayerIdAndAlive(@Param("playerId") UUID playerId);
 
