@@ -45,7 +45,7 @@ public class OfflineProgressionService {
         }
 
         List<LevelUpResult> results = new ArrayList<>();
-        List<Hero> heroes = heroRepository.findByPlayerId(player.getPlayerId());
+        List<Hero> heroes = heroRepository.findByPlayerIdAndAlive(player.getPlayerId());
 
         long totalXpGained = 0;
         int totalLevelsGained = 0;

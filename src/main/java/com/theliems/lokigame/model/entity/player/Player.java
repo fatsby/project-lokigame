@@ -48,6 +48,14 @@ public class Player implements UserDetails {
     @Builder.Default
     private Long gold = 0L;
 
+    /**
+     * Highest dungeon level cleared by this player.
+     * Player can only attempt levels <= highestClearedLevel + 1
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer highestClearedLevel = 0;
+
     @Embedded
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();

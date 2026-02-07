@@ -1,26 +1,25 @@
 package com.theliems.lokigame.model.dto.dungeon;
 
+import com.theliems.lokigame.model.enums.StatType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Response DTO for a procedurally generated dungeon.
+ * Response DTO for MonsterTemplate.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DungeonResponse {
+public class MonsterTemplateResponse {
     private UUID id;
     private String name;
     private String description;
-    private Integer level;
-    private UUID worldId;
-    private Long seed;
-    private List<MonsterResponse> monsters;
+    private Map<StatType, Double> baseStats;
+    private Map<StatType, Double> statGrowthPerLevel;
 }

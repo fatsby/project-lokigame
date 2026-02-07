@@ -1,41 +1,60 @@
 package com.theliems.lokigame.model.entity.dungeon;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "dungeons")
+/**
+ * Transient procedurally generated dungeon (not persisted).
+ * Generated on-demand using a DungeonSeed for deterministic recreation.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class Dungeon {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    /**
+     * Unique identifier for this dungeon instance.
+     */
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    /**
+     * Display name of the dungeon.
+     */
     private String name;
 
-    @Column(length = 500)
+    /**
+     * Optional description/flavor text.
+     */
     private String description;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer level = 1;
+    /**
+     * Dungeon difficulty level.
+     */
+    private Integer level;
 
-    @OneToMany(mappedBy = "dungeon", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    /**
+     * The World this dungeon belongs to.
+     */
+    private UUID worldId;
+
+    /**
+     * The seed used to generate this dungeon.
+     */
+    private Long seed;
+
+    /**
+     * List of scaled monster instances for this dungeon.
+     */
     @Builder.Default
     private List<Monster> monsters = new ArrayList<>();
 
-    @OneToOne(mappedBy = "dungeon", cascade = CascadeType.ALL, orphanRemoval = true)
+    /**
+     * Calculated drop table for rewards.
+     */
     private DropTable dropTable;
 }
