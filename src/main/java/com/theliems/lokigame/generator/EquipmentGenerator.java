@@ -120,14 +120,14 @@ public class EquipmentGenerator {
                 .build());
 
         // Secondary stat (always HP for survivability)
-        if (primaryStat != StatType.HP) {
-            double hpValue = calculateStatValue(StatType.HP, rarity, level, random, true);
-            baseStats.add(EquipmentStat.builder()
-                    .statType(StatType.HP)
-                    .value(hpValue)
-                    .isBaseStat(true)
-                    .build());
-        }
+//        if (primaryStat != StatType.HP) {
+//            double hpValue = calculateStatValue(StatType.HP, rarity, level, random, true);
+//            baseStats.add(EquipmentStat.builder()
+//                    .statType(StatType.HP)
+//                    .value(hpValue)
+//                    .isBaseStat(true)
+//                    .build());
+//        }
 
         return baseStats;
     }
@@ -184,7 +184,7 @@ public class EquipmentGenerator {
 
     private double getBaseValuePerLevel(StatType statType) {
         return switch (statType) {
-            case HP -> 50.0;
+            case HP -> 15.0;
             case ATK -> 10.0;
             case DEF -> 5.0;
             case CRIT_RATE -> 0.02; // 2% per level

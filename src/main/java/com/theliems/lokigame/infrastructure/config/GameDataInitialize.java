@@ -60,7 +60,7 @@ public class GameDataInitialize implements CommandLineRunner {
                 warriorBaseStats.put(StatType.DEF, 20.0);
                 warriorBaseStats.put(StatType.SPEED, 40.0);
                 warriorBaseStats.put(StatType.CRIT_RATE, 0.05);
-                warriorBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
+                warriorBaseStats.put(StatType.CRIT_DAMAGE, 1.2);
 
                 Map<StatType, Double> warriorModifiers = new HashMap<>();
                 warriorModifiers.put(StatType.DEF, 0.2); // +20% DEF
@@ -91,7 +91,7 @@ public class GameDataInitialize implements CommandLineRunner {
                 mageBaseStats.put(StatType.DEF, 10.0);
                 mageBaseStats.put(StatType.SPEED, 60.0);
                 mageBaseStats.put(StatType.CRIT_RATE, 0.15);
-                mageBaseStats.put(StatType.CRIT_DAMAGE, 2.0);
+                mageBaseStats.put(StatType.CRIT_DAMAGE, 1.35);
 
                 Map<StatType, Double> mageModifiers = new HashMap<>();
                 mageModifiers.put(StatType.ATK, 0.3); // +30% ATK
@@ -122,7 +122,7 @@ public class GameDataInitialize implements CommandLineRunner {
                 rogueBaseStats.put(StatType.DEF, 15.0);
                 rogueBaseStats.put(StatType.SPEED, 80.0);
                 rogueBaseStats.put(StatType.CRIT_RATE, 0.25);
-                rogueBaseStats.put(StatType.CRIT_DAMAGE, 2.5);
+                rogueBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
 
                 Map<StatType, Double> rogueModifiers = new HashMap<>();
                 rogueModifiers.put(StatType.SPEED, 0.25); // +25% SPEED
