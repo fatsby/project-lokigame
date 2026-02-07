@@ -229,15 +229,15 @@ public class GameDataInitialize implements CommandLineRunner {
                 // Goblin - Weak but fast
                 Map<StatType, Double> goblinBaseStats = new HashMap<>();
                 goblinBaseStats.put(StatType.HP, 100.0);
-                goblinBaseStats.put(StatType.ATK, 15.0);
+                goblinBaseStats.put(StatType.ATK, 40.0);
                 goblinBaseStats.put(StatType.DEF, 5.0);
                 goblinBaseStats.put(StatType.SPEED, 80.0);
                 goblinBaseStats.put(StatType.CRIT_RATE, 0.1);
                 goblinBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
 
                 Map<StatType, Double> goblinGrowth = new HashMap<>();
-                goblinGrowth.put(StatType.HP, 20.0);
-                goblinGrowth.put(StatType.ATK, 5.0);
+                goblinGrowth.put(StatType.HP, 35.0);
+                goblinGrowth.put(StatType.ATK, 15.0);
                 goblinGrowth.put(StatType.DEF, 2.0);
                 goblinGrowth.put(StatType.SPEED, 3.0);
                 goblinGrowth.put(StatType.CRIT_RATE, 0.005);
@@ -254,7 +254,7 @@ public class GameDataInitialize implements CommandLineRunner {
                 // Orc Warrior - Tanky with high attack
                 Map<StatType, Double> orcBaseStats = new HashMap<>();
                 orcBaseStats.put(StatType.HP, 250.0);
-                orcBaseStats.put(StatType.ATK, 30.0);
+                orcBaseStats.put(StatType.ATK, 75.0);
                 orcBaseStats.put(StatType.DEF, 15.0);
                 orcBaseStats.put(StatType.SPEED, 40.0);
                 orcBaseStats.put(StatType.CRIT_RATE, 0.05);
@@ -262,7 +262,7 @@ public class GameDataInitialize implements CommandLineRunner {
 
                 Map<StatType, Double> orcGrowth = new HashMap<>();
                 orcGrowth.put(StatType.HP, 50.0);
-                orcGrowth.put(StatType.ATK, 10.0);
+                orcGrowth.put(StatType.ATK, 20.0);
                 orcGrowth.put(StatType.DEF, 5.0);
                 orcGrowth.put(StatType.SPEED, 1.0);
                 orcGrowth.put(StatType.CRIT_RATE, 0.003);
@@ -279,15 +279,15 @@ public class GameDataInitialize implements CommandLineRunner {
                 // Skeleton Archer - Glass cannon
                 Map<StatType, Double> skeletonBaseStats = new HashMap<>();
                 skeletonBaseStats.put(StatType.HP, 80.0);
-                skeletonBaseStats.put(StatType.ATK, 40.0);
+                skeletonBaseStats.put(StatType.ATK, 90.0);
                 skeletonBaseStats.put(StatType.DEF, 3.0);
                 skeletonBaseStats.put(StatType.SPEED, 60.0);
                 skeletonBaseStats.put(StatType.CRIT_RATE, 0.2);
                 skeletonBaseStats.put(StatType.CRIT_DAMAGE, 2.0);
 
                 Map<StatType, Double> skeletonGrowth = new HashMap<>();
-                skeletonGrowth.put(StatType.HP, 15.0);
-                skeletonGrowth.put(StatType.ATK, 12.0);
+                skeletonGrowth.put(StatType.HP, 20.0);
+                skeletonGrowth.put(StatType.ATK, 30.0);
                 skeletonGrowth.put(StatType.DEF, 1.0);
                 skeletonGrowth.put(StatType.SPEED, 2.0);
                 skeletonGrowth.put(StatType.CRIT_RATE, 0.008);
@@ -304,16 +304,16 @@ public class GameDataInitialize implements CommandLineRunner {
                 // Troll - Very tanky, slow but powerful
                 Map<StatType, Double> trollBaseStats = new HashMap<>();
                 trollBaseStats.put(StatType.HP, 400.0);
-                trollBaseStats.put(StatType.ATK, 25.0);
+                trollBaseStats.put(StatType.ATK, 65.0);
                 trollBaseStats.put(StatType.DEF, 25.0);
                 trollBaseStats.put(StatType.SPEED, 20.0);
                 trollBaseStats.put(StatType.CRIT_RATE, 0.02);
                 trollBaseStats.put(StatType.CRIT_DAMAGE, 1.5);
 
                 Map<StatType, Double> trollGrowth = new HashMap<>();
-                trollGrowth.put(StatType.HP, 80.0);
-                trollGrowth.put(StatType.ATK, 8.0);
-                trollGrowth.put(StatType.DEF, 8.0);
+                trollGrowth.put(StatType.HP, 100.0);
+                trollGrowth.put(StatType.ATK, 15.0);
+                trollGrowth.put(StatType.DEF, 15.0);
                 trollGrowth.put(StatType.SPEED, 0.5);
                 trollGrowth.put(StatType.CRIT_RATE, 0.001);
                 trollGrowth.put(StatType.CRIT_DAMAGE, 0.01);
@@ -329,15 +329,15 @@ public class GameDataInitialize implements CommandLineRunner {
                 // Dark Mage - High damage caster
                 Map<StatType, Double> mageBaseStats = new HashMap<>();
                 mageBaseStats.put(StatType.HP, 120.0);
-                mageBaseStats.put(StatType.ATK, 50.0);
+                mageBaseStats.put(StatType.ATK, 85.0);
                 mageBaseStats.put(StatType.DEF, 5.0);
                 mageBaseStats.put(StatType.SPEED, 50.0);
                 mageBaseStats.put(StatType.CRIT_RATE, 0.15);
                 mageBaseStats.put(StatType.CRIT_DAMAGE, 2.2);
 
                 Map<StatType, Double> mageGrowth = new HashMap<>();
-                mageGrowth.put(StatType.HP, 25.0);
-                mageGrowth.put(StatType.ATK, 15.0);
+                mageGrowth.put(StatType.HP, 30.0);
+                mageGrowth.put(StatType.ATK, 25.0);
                 mageGrowth.put(StatType.DEF, 1.5);
                 mageGrowth.put(StatType.SPEED, 2.0);
                 mageGrowth.put(StatType.CRIT_RATE, 0.006);
