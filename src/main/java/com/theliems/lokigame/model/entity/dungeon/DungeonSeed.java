@@ -57,6 +57,13 @@ public class DungeonSeed {
     @Builder.Default
     private Boolean cleared = false;
 
+    /**
+     * The generated name of the dungeon.
+     * Persisted for consistency across replays.
+     */
+    @Column(name = "dungeon_name")
+    private String dungeonName;
+
     @Embedded
     @Builder.Default
     private AuditMetaData auditMetaData = new AuditMetaData();

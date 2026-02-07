@@ -43,6 +43,7 @@ public class DungeonService {
          * @param level    The dungeon level
          * @return A procedurally generated Dungeon
          */
+        @Transactional
         public Dungeon getOrGenerateDungeon(UUID playerId, int level) {
                 // This determines the world, validates level access, and creates/retrieves the
                 // seed

@@ -45,10 +45,16 @@ public class DungeonGeneratorService {
         World world = worldRepository.findById(dungeonSeed.getWorldId())
                 .orElseThrow(() -> exceptionFactory.resourceNotFound("World", dungeonSeed.getWorldId()));
 
-        return generateDungeon(
+        Dungeon dungeon = generateDungeon(
                 dungeonSeed.getDungeonLevel(),
                 world,
                 dungeonSeed.getSeed());
+
+        if (dungeonSeed.getDungeonName() == null || dungeonSeed.getDungeonName().isEmpty()) {
+            dungeonSeed.setDungeonName(dungeon.getName());
+        }
+
+        return dungeon;
     }
 
     /**
