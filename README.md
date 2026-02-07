@@ -1,104 +1,90 @@
-# 🏰 LokiGame Backend
+# 🎮 LokiGame - Game Data & Balance Statistics
 
-> **Server-Authoritative Idle Gacha Game Engine**
-> Built with Spring Boot 3.3, Java 21, and Docker.
-
-## 📋 Project Overview
-**LokiGame** is an online live-service backend for an idle RPG. It features:
-* **Zero-Player Gameplay:** Battles are simulated deterministically on the server (Headless).
-* **Idle Progression:** Offline rewards are calculated using "Math-on-Read" (Lazy Evaluation).
-* **Gacha System:** RNG-based hero summoning with unique stats and cosmetics.
-* **Data-Driven Design:** Game balance data (classes, base stats) is loaded from JSON, while player data lives in PostgreSQL.
+This document contains the core game data, base stats, and growth scaling for all entities within the LokiGame engine. This data is initialized on the first boot via `GameDataInitialize.java`.
 
 ---
 
-## 🛠 Tech Stack
+## 🛡️ Hero Classes
 
-| Component | Technology | Description |
+Heroes are categorized into specific classes that define their combat role, base stats, and how they scale as they level up.
+
+### Base Statistics & Modifiers
+
+| Class | HP | ATK | DEF | SPD | Crit Rate | Crit DMG | Special Modifiers |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Warrior** | 150.0 | 30.0 | 20.0 | 40.0 | 5.0% | 1.2x | +20% DEF, +15% HP |
+| **Mage** | 80.0 | 50.0 | 10.0 | 60.0 | 15.0% | 1.35x | +30% ATK, +10% Crit Rate |
+| **Rogue** | 100.0 | 40.0 | 15.0 | 80.0 | 25.0% | 1.5x | +25% SPD, +20% Crit Rate |
+
+### Stat Growth (Per Level)
+
+| Class | HP | ATK | DEF | SPD | Crit Rate | Crit DMG |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Warrior** | +8.0 | +2.0 | +3.0 | +0.5 | +0.1% | +0.02 |
+| **Mage** | +3.0 | +5.0 | +0.5 | +1.0 | +0.3% | +0.05 |
+| **Rogue** | +4.0 | +3.5 | +1.0 | +2.0 | +0.5% | +0.08 |
+
+---
+
+## 🧬 Origins (Races)
+
+Origins provide percentage-based multipliers to a hero's final statistics.
+
+| Origin | Modifiers | Description |
 | :--- | :--- | :--- |
-| **Language** | Java 21 | Using Virtual Threads (Project Loom) for high concurrency. |
-| **Framework** | Spring Boot 3.3+ | Web, Data JPA, Security, Validation. |
-| **Database** | PostgreSQL 16 | Stores Players, Heroes (JSONB), and Inventory. |
-| **Cache** | Redis | Stores active sessions, "Energy" timers, and deduplication. |
-| **Auth** | Spring Security + JWT | Stateless authentication. |
-| **Ops** | Docker Compose | Orchestrates the Backend, DB, and Cache. |
+| **Human** | +10% HP, +5% ATK | Balanced race with moderate bonuses. |
+| **Elf** | +20% SPD, +10% Crit Rate | Swift and agile race. |
+| **Dwarf** | +25% DEF, +15% HP | Sturdy and defensive race. |
 
 ---
 
-## 🚀 Getting Started (Onboarding Guide)
+## 🌌 Worlds
 
-**Prerequisites:**
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Must be running)
-* Git
-* Java IDE (IntelliJ IDEA Recommended)
+Worlds determine the rarity and difficulty of the dungeons, as well as the power level of the gear found within.
 
-### 1. First-Time Setup
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd lokigame-backend
-    ```
-
-2.  **Start the Environment:**
-    Open your terminal in the project root and run:
-    ```bash
-    docker-compose up --build
-    ```
-    * *Note:* The first run downloads Maven dependencies and may take 5+ minutes.
-    * Wait until you see: `Started LokigameApplication in X.XXX seconds`.
-
-### 2. Verify Installation
-* **API Health Check:** Open [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) (if enabled) or try to hit a public endpoint.
-* **Database:** Connect via DBeaver using the credentials below.
+| World | Rarity Weight | Stat Multiplier | Difficulty Mod | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Aetheria** | 50.0% | 1.0x | 1.0x | A mystical realm of magic and wonder. |
+| **Shadowlands** | 30.0% | 1.2x | 1.2x | A dark realm of chaos and danger. |
+| **Celestia** | 20.0% | 1.5x | 1.5x | A heavenly realm of light and purity. |
 
 ---
 
-## 💻 Development Workflow (Dev Mode)
+## 👹 Monster Templates
 
-We use a **Hot Reload** configuration in Docker to avoid rebuilding images constantly.
+Monster stats scale according to the dungeon level. These templates define their base potential.
 
-### How to apply code changes:
-1.  **Edit Code:** Make changes to your `.java` files in your IDE.
-2.  **Restart Container:**
-    * Open **Docker Desktop Dashboard**.
-    * Find the `backend` container.
-    * Click the **Restart** (🔄) button.
-3.  **Wait ~5 Seconds:** The container uses `mvn spring-boot:run` to compile *only* your changes and restart the app.
+### Base Statistics
 
-### How to apply Config/Docker changes:
-If you modify `application.properties`, `pom.xml`, or `docker-compose.yml`, you must rebuild:
-```bash
-docker-compose up --build
-```
+| Monster | HP | ATK | DEF | SPD | Crit Rate | Crit DMG |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Goblin** | 100.0 | 40.0 | 5.0 | 80.0 | 10.0% | 1.5x |
+| **Orc Warrior** | 250.0 | 75.0 | 15.0 | 40.0 | 5.0% | 1.8x |
+| **Skeleton Archer** | 80.0 | 90.0 | 3.0 | 60.0 | 20.0% | 2.0x |
+| **Forest Troll** | 400.0 | 65.0 | 25.0 | 20.0 | 2.0% | 1.5x |
+| **Dark Mage** | 120.0 | 85.0 | 5.0 | 50.0 | 15.0% | 2.2x |
 
-## 🔐 Credentials & Ports
+### Scaling (Per Monster Level)
 
-| Service  | Host                                      | Internal Docker Host | Port | Username | Password          |
-|----------|-------------------------------------------|----------------------|------|----------|-------------------|
-| API      | http://localhost:8080                     | backend              | 8080 | -        | -                 |
-| Postgres | jdbc:postgresql://localhost:5432/lokigame | db                   | 5432 | loki     | SecureP@ssword123 |
-| Redis    | localhost:6379                            | redis                | 6379 | -        | -                 |
+| Monster | HP | ATK | DEF | SPD | Crit Rate | Crit DMG |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Goblin** | +35.0 | +15.0 | +2.0 | +3.0 | +0.5% | +0.02 |
+| **Orc Warrior** | +50.0 | +20.0 | +5.0 | +1.0 | +0.3% | +0.03 |
+| **Skeleton Archer** | +20.0 | +30.0 | +1.0 | +2.0 | +0.8% | +0.05 |
+| **Forest Troll** | +100.0 | +15.0 | +15.0 | +0.5 | +0.1% | +0.01 |
+| **Dark Mage** | +30.0 | +25.0 | +1.5 | +2.0 | +0.6% | +0.06 |
 
-## 🏛 Architecture Patterns
-### 1. Authentication (JWT)
-    Login: POST /api/auth/login returns an accessToken (24h) and refreshToken (7 days).
+---
 
-    Protected Routes: Add header Authorization: Bearer <token> to requests.
+## 🏷️ Naming Systems
 
-    Roles: ROLE_USER, ROLE_MODERATOR, ROLE_ADMIN.
+The game uses a procedural naming system for heroes and legendary items.
 
-### 2. Static vs. Dynamic Data
-    Static (Game Design): stored in src/main/resources/data/*.json.
+### Hero Names
+*   **Female**: Aria, Luna, Zara, Nova, Ivy
+*   **Male**: Kael, Thorin, Drake, Rex, Orion
+*   **Surnames**: Thatcher, Blackwood, Beaumont, Sterling, Hawthorne, Garrick, Barlow, Miller, Valerius, Crowe, Hardy, Vance, Mordecai, Pendleton, Davenport, Ridley, Stallard, Granger
 
-    Examples: Hero Classes, Base Stats, Item Definitions.
-
-    Loaded: On server startup into memory (Singleton Service).
-
-    Dynamic (Player Progress): stored in PostgreSQL.
-
-    Examples: Player entity, Hero entity (UUID, Owner, rolled stats).
-
-### 3. RNG & Simulation
-    Deterministic: Battles use a seeded RNG (SplittableRandom).
-
-    Flow: Client sends Start Dungeon -> Server simulates result instantly -> Server returns Seed + Loot -> Client plays back the animation using the seed.
+### Equipment Prefixes & Unique Names
+*   **Godsent (Legendary)**: *King Arthur's*, *Asgardian Glory*, *Hale's Own*
+*   **Common Prefixes**: Cursed, Crooked, Hallowed, Seraphic, Primordial, Malevolent, Abyssal, Blighted, Ethereal, Sanctified
