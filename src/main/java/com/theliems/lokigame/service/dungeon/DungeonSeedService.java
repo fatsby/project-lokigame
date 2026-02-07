@@ -2,9 +2,11 @@ package com.theliems.lokigame.service.dungeon;
 
 import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.model.entity.dungeon.DungeonSeed;
+import com.theliems.lokigame.model.entity.hero.World;
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.repository.dungeon.DungeonSeedRepository;
 import com.theliems.lokigame.repository.player.PlayerRepository;
+import com.theliems.lokigame.utils.WorldUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class DungeonSeedService {
     private final DungeonSeedRepository dungeonSeedRepository;
     private final PlayerRepository playerRepository;
     private final ExceptionFactory exceptionFactory;
+    private final WorldUtils worldUtils;
 
     /**
      * Validate if a player can attempt the requested dungeon level.
@@ -63,26 +66,33 @@ public class DungeonSeedService {
      * 
      * Rules:
      * - If seed exists for this level, return it (no re-seeding)
-     * - If no seed exists and level is valid, create new seed
+     * - If no seed exists and level is valid, roll a new world and create new seed
      * 
      * @param playerId The player's ID
-     * @param worldId  The world's ID
      * @param level    The dungeon level
      * @return The existing or newly created DungeonSeed
      */
     @Transactional
-    public DungeonSeed getOrCreateSeed(UUID playerId, UUID worldId, int level) {
-        validateLevelAccess(playerId, level);
-
+    public DungeonSeed getOrCreateSeed(UUID playerId, int level) {
+        // 1. Check if seed already exists for this level (regardless of world)
         Optional<DungeonSeed> existingSeed = dungeonSeedRepository
-                .findByPlayerIdAndWorldIdAndDungeonLevel(playerId, worldId, level);
+                .findFirstByPlayerIdAndDungeonLevel(playerId, level);
 
         if (existingSeed.isPresent()) {
-            log.debug("Returning existing seed for player {} at level {} in world {}", playerId, level, worldId);
-            return existingSeed.get();
+            DungeonSeed seed = existingSeed.get();
+            log.debug("Returning existing seed for player {} at level {} in world {}",
+                    playerId, level, seed.getWorldId());
+            return seed;
         }
 
-        // Create new seed only if this is a valid frontier level
+        // 2. If no seed, validate access and create new one
+        validateLevelAccess(playerId, level);
+
+        // Roll a random world
+        World world = worldUtils.rollWorld(ThreadLocalRandom.current());
+        UUID worldId = world.getWorldId();
+
+        // Create new random seed
         long newSeed = ThreadLocalRandom.current().nextLong();
 
         DungeonSeed dungeonSeed = DungeonSeed.builder()
@@ -94,7 +104,8 @@ public class DungeonSeedService {
                 .build();
 
         dungeonSeed = dungeonSeedRepository.save(dungeonSeed);
-        log.info("Created new seed {} for player {} at level {} in world {}", newSeed, playerId, level, worldId);
+        log.info("Created new seed {} for player {} at level {} in world {} ('{}')",
+                newSeed, playerId, level, worldId, world.getName());
 
         return dungeonSeed;
     }

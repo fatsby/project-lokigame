@@ -21,6 +21,12 @@ public interface DungeonSeedRepository extends JpaRepository<DungeonSeed, UUID> 
     Optional<DungeonSeed> findByPlayerIdAndWorldIdAndDungeonLevel(UUID playerId, UUID worldId, Integer dungeonLevel);
 
     /**
+     * Find the first seed for a player's dungeon level, regardless of world.
+     * Used to check if a seed already exists for a level.
+     */
+    Optional<DungeonSeed> findFirstByPlayerIdAndDungeonLevel(UUID playerId, Integer dungeonLevel);
+
+    /**
      * Find all seeds for a player in a world, filtered by cleared status.
      */
     List<DungeonSeed> findByPlayerIdAndWorldIdAndCleared(UUID playerId, UUID worldId, Boolean cleared);

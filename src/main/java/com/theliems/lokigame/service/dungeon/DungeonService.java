@@ -36,17 +36,17 @@ public class DungeonService {
         private final ExceptionFactory exceptionFactory;
 
         /**
-         * Get or generate a dungeon for a player at a specific level in a world.
-         * Uses seed-based generation for deterministic dungeon recreation.
+         * Get or generate a dungeon for a player at a specific level.
+         * The world is determined by the seed (either existing or newly rolled).
          * 
          * @param playerId The player's ID
          * @param level    The dungeon level
-         * @param worldId  The world's ID
          * @return A procedurally generated Dungeon
          */
-        public Dungeon getOrGenerateDungeon(UUID playerId, int level, UUID worldId) {
-                // This validates level access and creates/retrieves the seed
-                DungeonSeed seed = dungeonSeedService.getOrCreateSeed(playerId, worldId, level);
+        public Dungeon getOrGenerateDungeon(UUID playerId, int level) {
+                // This determines the world, validates level access, and creates/retrieves the
+                // seed
+                DungeonSeed seed = dungeonSeedService.getOrCreateSeed(playerId, level);
 
                 // Generate dungeon from seed (deterministic)
                 return dungeonGeneratorService.generateFromSeed(seed);

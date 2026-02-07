@@ -27,16 +27,14 @@ public class DungeonController {
         /**
          * Preview a procedurally generated dungeon without starting a run.
          * 
-         * @param worldId The world ID
-         * @param level   The dungeon level
+         * @param level The dungeon level
          * @return Generated dungeon preview
          */
         @GetMapping("/preview")
         public ResponseEntity<DungeonResponse> previewDungeon(
-                        @RequestParam UUID worldId,
                         @RequestParam Integer level) {
                 UUID playerId = playerService.getCurrentPlayer().getPlayerId();
-                Dungeon dungeon = dungeonService.getOrGenerateDungeon(playerId, level, worldId);
+                Dungeon dungeon = dungeonService.getOrGenerateDungeon(playerId, level);
                 return ResponseEntity.ok(dungeonMapper.toDto(dungeon));
         }
 }

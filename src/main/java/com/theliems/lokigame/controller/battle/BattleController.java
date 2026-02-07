@@ -36,10 +36,10 @@ public class BattleController {
                 UUID playerId = playerService.getCurrentPlayer().getPlayerId();
 
                 // Generate dungeon for simulation
+                // Generate dungeon for simulation
                 Dungeon dungeon = dungeonService.getOrGenerateDungeon(
                                 playerId,
-                                request.getDungeonLevel(),
-                                request.getWorldId());
+                                request.getDungeonLevel());
 
                 BattleSimulateResponse response = battleService.simulateBattle(
                                 request.getHeroIds(),
