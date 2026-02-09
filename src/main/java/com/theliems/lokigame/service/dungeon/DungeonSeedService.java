@@ -5,6 +5,7 @@ import com.theliems.lokigame.model.entity.dungeon.DungeonSeed;
 import com.theliems.lokigame.model.entity.hero.World;
 import com.theliems.lokigame.model.entity.player.Player;
 import com.theliems.lokigame.repository.dungeon.DungeonSeedRepository;
+import com.theliems.lokigame.repository.hero.WorldRepository;
 import com.theliems.lokigame.repository.player.PlayerRepository;
 import com.theliems.lokigame.utils.WorldUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Service responsible for managing dungeon seeds and enforcing level gating.
@@ -28,6 +33,7 @@ public class DungeonSeedService {
 
     private final DungeonSeedRepository dungeonSeedRepository;
     private final PlayerRepository playerRepository;
+    private final WorldRepository worldRepository;
     private final ExceptionFactory exceptionFactory;
     private final WorldUtils worldUtils;
 
@@ -160,5 +166,28 @@ public class DungeonSeedService {
      */
     public List<DungeonSeed> getAllSeeds(UUID playerId, UUID worldId) {
         return dungeonSeedRepository.findByPlayerIdAndWorldId(playerId, worldId);
+    }
+
+    /**
+     * Get all dungeon seeds for a player with World entities resolved.
+     * 
+     * @param playerId The player's ID
+     * @return Map of DungeonSeed to its associated World
+     */
+    public Map<DungeonSeed, World> getAllSeedsWithWorlds(UUID playerId) {
+        List<DungeonSeed> seeds = dungeonSeedRepository.findByPlayerId(playerId);
+
+        // Batch fetch unique worlds to avoid N+1
+        Set<UUID> worldIds = seeds.stream()
+                .map(DungeonSeed::getWorldId)
+                .collect(Collectors.toSet());
+
+        Map<UUID, World> worldMap = worldRepository.findAllById(worldIds).stream()
+                .collect(Collectors.toMap(World::getWorldId, Function.identity()));
+
+        return seeds.stream()
+                .collect(Collectors.toMap(
+                        seed -> seed,
+                        seed -> worldMap.get(seed.getWorldId())));
     }
 }
