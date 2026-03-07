@@ -1,6 +1,5 @@
 package com.theliems.lokigame.service.dungeon;
 
-import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
 import com.theliems.lokigame.model.dto.battle.BattleSimulateResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResponse;
 import com.theliems.lokigame.model.dto.dungeon.DungeonRunResult;
@@ -29,7 +28,6 @@ public class DungeonRunFacade {
     private final DungeonService dungeonService;
     private final PlayerService playerService;
     private final HeroService heroService;
-    private final ExceptionFactory exceptionFactory;
 
     /**
      * Execute a complete dungeon run with procedural generation.
@@ -38,8 +36,9 @@ public class DungeonRunFacade {
      * 1. Validate level access
      * 2. Get/create seed and generate dungeon
      * 3. Simulate battle
-     * 4. On victory: grant rewards, mark cleared, update progression
-     * 5. On defeat: seed remains for retry
+     * 4. Persist hero casualties from final battle state
+     * 5. On victory: grant rewards, mark cleared, update progression
+     * 6. On non-victory: seed remains for retry
      * 
      * @param heroIds      List of hero UUIDs to use in battle
      * @param dungeonLevel The dungeon level to attempt
@@ -60,21 +59,23 @@ public class DungeonRunFacade {
                 playerId, dungeonLevel, dungeon.getWorldId(), dungeon.getSeed());
         log.info("Generated dungeon '{}' with {} monsters", dungeon.getName(), dungeon.getMonsters().size());
 
-        // 2. Simulate Battle
+        // 2. Simulate battle
         BattleSimulateResponse battleResult = battleService.simulateBattle(heroIds, dungeon);
 
-        // 3. Grant rewards only if heroes won
+        // 3. Persist per-hero casualty outcome for all battle results.
+        heroService.syncAliveStatusFromBattle(battleResult.getHeroes());
+
+        // 4. Grant rewards only if heroes won
         DungeonRunResult rewardResult = null;
         if ("HEROES".equals(battleResult.getWinner())) {
             rewardResult = dungeonService.grantRewards(playerId, dungeon);
             dungeonService.markDungeonCleared(playerId, dungeon);
             log.info("Dungeon run victory! Rewards granted and progression updated for player {}", playerId);
         } else {
-            log.info("Dungeon run defeat for player {} - seed remains for retry", playerId);
-            heroService.updateHeroAliveStatus(heroIds, false);
+            log.info("Dungeon run non-victory for player {} - seed remains for retry", playerId);
         }
 
-        // 4. Map to unified response
+        // 5. Map to unified response
         return buildUnifiedResponse(battleResult, rewardResult, dungeon);
     }
 

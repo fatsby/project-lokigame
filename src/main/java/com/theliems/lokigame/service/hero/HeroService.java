@@ -1,6 +1,7 @@
 package com.theliems.lokigame.service.hero;
 
 import com.theliems.lokigame.infrastructure.exception.ExceptionFactory;
+import com.theliems.lokigame.model.dto.battle.BattleUnitState;
 import com.theliems.lokigame.model.entity.hero.Hero;
 import com.theliems.lokigame.model.entity.hero.HeroStats;
 import com.theliems.lokigame.model.entity.inventory.EquipmentItem;
@@ -115,6 +116,39 @@ public class HeroService {
         heroRepository.updateAliveStatus(heroIds, status);
     }
 
+    /**
+     * Sync hero alive status from final battle hero states.
+     */
+    public void syncAliveStatusFromBattle(List<BattleUnitState> heroStates) {
+        if (heroStates == null || heroStates.isEmpty()) {
+            return;
+        }
+
+        List<UUID> aliveHeroIds = heroStates.stream()
+                .filter(Objects::nonNull)
+                .filter(BattleUnitState::isHero)
+                .filter(BattleUnitState::isAlive)
+                .map(BattleUnitState::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<UUID> deadHeroIds = heroStates.stream()
+                .filter(Objects::nonNull)
+                .filter(BattleUnitState::isHero)
+                .filter(state -> !state.isAlive())
+                .map(BattleUnitState::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (!aliveHeroIds.isEmpty()) {
+            heroRepository.updateAliveStatus(aliveHeroIds, true);
+        }
+
+        if (!deadHeroIds.isEmpty()) {
+            heroRepository.updateAliveStatus(deadHeroIds, false);
+        }
+    }
+
     private void applyEquipmentStats(Hero hero, EquipmentItem equipment) {
         // Apply base stats
         if (equipment.getBaseStats() != null) {
@@ -157,3 +191,5 @@ public class HeroService {
         }
     }
 }
+
+

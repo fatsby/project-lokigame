@@ -1,0 +1,110 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 6 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 3176 >>
+stream
+BT
+/F2 16 Tf
+1 0 0 1 40 770 Tm (LokiGame App Summary) Tj
+/F1 9 Tf
+1 0 0 1 40 756 Tm (Generated from repository evidence only \(code, config, and docs in this repo\).) Tj
+/F1 9 Tf
+1 0 0 1 40 742 Tm () Tj
+/F2 11 Tf
+1 0 0 1 40 728 Tm (What It Is) Tj
+/F1 9 Tf
+1 0 0 1 40 714 Tm (LokiGame is a Spring Boot backend for a server-authoritative RPG/gacha-style game.) Tj
+/F1 9 Tf
+1 0 0 1 40 700 Tm (It provides authenticated REST APIs for hero, dungeon, battle, inventory, and economy) Tj
+/F1 9 Tf
+1 0 0 1 40 686 Tm (systems.) Tj
+/F1 9 Tf
+1 0 0 1 40 672 Tm () Tj
+/F2 11 Tf
+1 0 0 1 40 658 Tm (Who It Is For) Tj
+/F1 9 Tf
+1 0 0 1 40 644 Tm (Primary persona: game client/backend developers integrating and operating a live game API) Tj
+/F1 9 Tf
+1 0 0 1 40 630 Tm (backend.) Tj
+/F1 9 Tf
+1 0 0 1 40 616 Tm () Tj
+/F2 11 Tf
+1 0 0 1 40 602 Tm (What It Does) Tj
+/F1 9 Tf
+1 0 0 1 40 588 Tm (- JWT auth APIs \(register/login/refresh\) with Spring Security filters and role checks.) Tj
+/F1 9 Tf
+1 0 0 1 40 574 Tm (- Hero workflows, including class/origin/world data and hero roll/management endpoints.) Tj
+/F1 9 Tf
+1 0 0 1 40 560 Tm (- Dungeon and dungeon-run orchestration, including seeds, scaling, and rewards paths.) Tj
+/F1 9 Tf
+1 0 0 1 40 546 Tm (- Battle simulation endpoints backed by battle service/engine classes.) Tj
+/F1 9 Tf
+1 0 0 1 40 532 Tm (- Inventory/equipment flows with generated equipment and owned inventory items.) Tj
+/F1 9 Tf
+1 0 0 1 40 518 Tm (- Economy/admin flows for currency request submission and review/approval endpoints.) Tj
+/F1 9 Tf
+1 0 0 1 40 504 Tm (- Session tracking hooks with Redis configured in application properties.) Tj
+/F1 9 Tf
+1 0 0 1 40 490 Tm () Tj
+/F2 11 Tf
+1 0 0 1 40 476 Tm (How It Works \(Architecture\)) Tj
+/F1 9 Tf
+1 0 0 1 40 462 Tm (- API layer: controllers under src/main/java/.../controller expose REST endpoints.) Tj
+/F1 9 Tf
+1 0 0 1 40 448 Tm (- Business layer: services under .../service implement game logic and orchestration.) Tj
+/F1 9 Tf
+1 0 0 1 40 434 Tm (- Core logic: generator \(HeroFactory, EquipmentGenerator\) and engine \(BattleEngine\).) Tj
+/F1 9 Tf
+1 0 0 1 40 420 Tm (- Data layer: Spring Data repositories persist entities to PostgreSQL \(JPA/Hibernate\).) Tj
+/F1 9 Tf
+1 0 0 1 40 406 Tm (- Security layer: SecurityConfig + JwtAuthenticationFilter + JwtTokenProvider.) Tj
+/F1 9 Tf
+1 0 0 1 40 392 Tm (- Startup/data flow: GameDataInitialize loads static game data from resources/data/*.json.) Tj
+/F1 9 Tf
+1 0 0 1 40 378 Tm (- Infra services: Redis configured; exact production cache/session strategy Not found in) Tj
+/F1 9 Tf
+1 0 0 1 40 364 Tm (  repo.) Tj
+/F1 9 Tf
+1 0 0 1 40 350 Tm () Tj
+/F2 11 Tf
+1 0 0 1 40 336 Tm (How To Run \(Minimal\)) Tj
+/F1 9 Tf
+1 0 0 1 40 322 Tm (1. In project root, run: docker-compose up --build) Tj
+/F1 9 Tf
+1 0 0 1 40 308 Tm (2. Wait for backend startup logs \(service on port 8080\).) Tj
+/F1 9 Tf
+1 0 0 1 40 294 Tm (3. Verify API: http://localhost:8080/swagger-ui/index.html or /actuator/health.) Tj
+/F1 9 Tf
+1 0 0 1 40 280 Tm (4. Alternative local run: set PostgreSQL/Redis env vars, then run mvn spring-boot:run.) Tj
+ET
+
+endstream
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000003549 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3624
+%%EOF
