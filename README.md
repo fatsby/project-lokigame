@@ -2,6 +2,7 @@
 
 <br>
 Youtube: https://youtu.be/BDUaxafeukU
+<br>
 Slides: https://www.canva.com/design/DAHDn_4JpcI/UJ2SpT7Wdjp6hXQYD2zqvg/edit?utm_content=DAHDn_4JpcI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 # 🎮 LokiGame - Game Data & Balance Statistics
