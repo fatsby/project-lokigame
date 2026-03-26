@@ -1,7 +1,12 @@
+# For Mr Thao
+
+<br>
+Youtube: https://youtu.be/BDUaxafeukU
+Slides: https://www.canva.com/design/DAHDn_4JpcI/UJ2SpT7Wdjp6hXQYD2zqvg/edit?utm_content=DAHDn_4JpcI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 # 🎮 LokiGame - Game Data & Balance Statistics
 
 This document contains the core game data, base stats, and growth scaling for all entities within the LokiGame engine. This data is initialized on the first boot via `GameDataInitialize.java`.
-
 ---
 
 ## 🛡️ Hero Classes
